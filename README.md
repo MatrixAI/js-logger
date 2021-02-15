@@ -2,7 +2,7 @@
 
 This library provides a javascript logger which runs similar to the python logger. Messages are sent to STDERR by defaul
 
-## Heirachichal Loggers
+## Hierarchical Loggers
 
 Generate sub-loggers for different domains of a project
 
@@ -48,4 +48,11 @@ logger.info('output');
 # These will be logged
 logger.warn('output');
 logger.error('output');
+```
+
+## Development
+
+```
+npm version <update_type>
+npm publish --access public
 ```
