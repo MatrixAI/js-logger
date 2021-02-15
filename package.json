@@ -1,15 +1,12 @@
 {
-  "name": "@matrixai/typescript-demo-lib",
+  "name": "@matrixai/js-logger",
   "version": "1.0.0",
-  "bin": {
-    "typescript-demo-lib": "dist/bin/typescript-demo-lib.js"
-  },
-  "author": "Roger Qiu",
-  "description": "TypeScript Demo Library Project",
+  "author": "Scott Morris",
+  "description": "Python-like JavaScript Logger",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MatrixAI/TypeScript-Demo-Lib.git"
+    "url": "https://github.com/MatrixAI/js-logger.git"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,11 +15,7 @@
     "ts-node": "ts-node -r tsconfig-paths/register",
     "test": "jest",
     "lint": "eslint '{src,tests}/**/*.{js,ts}'",
-    "lintfix": "eslint '{src,tests}/**/*.{js,ts}' --fix",
-    "typescript-demo-lib": "ts-node -r tsconfig-paths/register src/bin/typescript-demo-lib.ts"
-  },
-  "dependencies": {
-    "uuid": "^8.3.0"
+    "lintfix": "eslint '{src,tests}/**/*.{js,ts}' --fix"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
