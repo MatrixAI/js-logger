@@ -7,7 +7,7 @@ pkgs.mkShell {
     nodePackages.node2nix
   ];
   shellHook = ''
-    echo 'Entering Typescript-Demo-Lib'
+    echo 'Entering js-logger'
     set -o allexport
     . ./.env
     set +o allexport

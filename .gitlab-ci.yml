@@ -23,20 +23,3 @@ test:
         nix-shell -I nixpkgs=./pkgs.nix --packages nodejs --run '
         npm install;
         npm run test;
-        '
-
-nix-dry:
-  stage: check
-  script:
-    - nix-build -v -v --dry-run ./release.nix --attr application
-    - nix-build -v -v --dry-run ./release.nix --attr docker
-
-nix:
-  stage: build
-  script:
-    - >
-        nix-build ./release.nix
-        --attr application
-        --attr docker
-  only:
-    - master
