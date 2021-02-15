@@ -1,6 +1,6 @@
 {
   "name": "@matrixai/js-logger",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Scott Morris",
   "description": "Python-like JavaScript Logger",
   "license": "Apache-2.0",
