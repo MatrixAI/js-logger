@@ -1,164 +1,118 @@
+import type { ToString, LogRecord } from './types';
+
+import { LogLevel } from './types';
+import Handler from './Handler';
+import ConsoleHandler from './handlers/ConsoleHandler';
+
 class Logger {
-  public name: string;
-  private parent: Logger;
-  private loggers: Logger[];
-  private handlers: Handler[];
-  private level: number;
+  public key: string;
+  public level: LogLevel;
+  public readonly handlers: Set<Handler>;
+  public readonly parent?: Logger;
+  public readonly loggers: { [key: string]: Logger } = {};
 
-  constructor(name?: string, parent?, level?: number) {
-    this.name = name ?? 'root';
-    this.parent = parent ?? null;
-    this.handlers = [];
-    this.addHandler(new ConsoleHandler());
-    this.level = level ?? 0;
-    this.loggers = [];
-  }
-
-  public getLogger(name: string): Logger {
-    if (this.loggers[name]) {
-      return this.loggers[name];
-    }
-    let checkParent = this.parent;
-    while (checkParent) {
-      if (checkParent.loggers[name]) {
-        return checkParent.loggers[name];
-      }
-      checkParent = this.parent;
-    }
-    this.loggers[name] = new Logger(name, this);
-    return this.loggers[name];
-  }
-
-  public info(msg: string): void {
-    this.log(msg, 2);
-  }
-
-  public warn(msg: string): void {
-    this.log(msg, 3);
-  }
-
-  public debug(msg: string): void {
-    this.log(msg, 1);
-  }
-
-  public error(msg: string): void {
-    this.log(msg, 4);
-  }
-
-  public getLevelName(): string {
-    let levelName = '';
-
-    if (this.level === 1) {
-      levelName = 'DEBUG';
-    } else if (this.level === 2) {
-      levelName = 'INFO';
-    } else if (this.level === 3) {
-      levelName = 'WARN';
-    } else if (this.level === 4) {
-      levelName = 'INFO';
-    } else {
-      levelName = 'NOTSET';
-    }
-
-    return levelName;
-  }
-
-  public setLevel(level: number): void {
+  constructor(
+    key: string = 'root',
+    level: LogLevel = LogLevel.NOTSET,
+    handlers: Array<Handler> = [new ConsoleHandler()],
+    parent?: Logger,
+  ) {
+    this.key = key;
     this.level = level;
+    this.handlers = new Set(handlers);
+    this.parent = parent;
   }
 
-  public isEnabledFor(level: number): boolean {
-    return level >= this.level;
-  }
-
-  public getName(): string {
-    return this.name;
-  }
-
-  public getChild(suffix: string): Logger {
-    if (!suffix) {
-      throw new Error('Argument 1 of Logger.getChild is not specified.');
+  public getChild(key: string): Logger {
+    if (this.loggers[key]) {
+      return this.loggers[key];
     }
-    if (!this.loggers[suffix]) {
-      throw new Error(`Logger has no child with name ${suffix}`);
-    }
-    return this.loggers[suffix];
+    const logger = new Logger(key, LogLevel.NOTSET, [], this);
+    this.loggers[key] = logger;
+    return logger;
   }
 
-  public getParent(): Logger {
+  public getParent(): Logger | undefined {
     return this.parent;
   }
 
-  public addHandler(handler): void {
-    if (typeof handler !== 'object') {
-      throw new Error('Argument 1 of Logger.addHandler is not an object.');
-    }
-    this.handlers.push(handler);
+  public setLevel(level: LogLevel): void {
+    this.level = level;
   }
 
-  public removeHandler(handler): void {
-    const index = this.handlers.indexOf(handler);
-    if (index > -1) {
-      this.handlers.splice(index, 1);
+  public getEffectiveLevel(): LogLevel {
+    if (this.level !== LogLevel.NOTSET) {
+      return this.level;
     }
+    if (this.parent) {
+      return this.parent.getEffectiveLevel();
+    }
+    return this.level;
+  }
+
+  public isEnabledFor(level: LogLevel): boolean {
+    return level >= this.level;
+  }
+
+  public addHandler(handler: Handler): void {
+    this.handlers.add(handler);
+  }
+
+  public removeHandler(handler: Handler): void {
+    this.handlers.delete(handler);
+  }
+
+  public clearHandlers(): void {
+    this.handlers.clear();
   }
 
   public hasHandlers(): boolean {
-    if (this.handlers.length) {
+    if (this.handlers.size) {
       return true;
+    } else {
+      return this.parent?.hasHandlers() ?? false;
     }
-
-    return false;
   }
 
-  private makeRecord(msg: string, level: number): Record<string, any> {
-    const date = new Date();
-    const record = {
-      created: `${date.getDate()}/${
-        date.getMonth() + 1
-      }/${date.getFullYear()} @ ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
-      level: level,
-      name: this.name,
-      message: msg,
-    };
-
-    return record;
+  public debug(data: ToString): void {
+    this.log(data.toString(), LogLevel.DEBUG);
   }
 
-  private log(msg, level: number): void {
+  public info(data: ToString): void {
+    this.log(data.toString(), LogLevel.INFO);
+  }
+
+  public warn(data: ToString): void {
+    this.log(data.toString(), LogLevel.WARN);
+  }
+
+  public error(data: ToString): void {
+    this.log(data.toString(), LogLevel.ERROR);
+  }
+
+  protected log(msg: string, level: LogLevel): void {
     const record = this.makeRecord(msg, level);
-
-    if (level >= this.level) {
+    if (level >= this.getEffectiveLevel()) {
       this.callHandlers(record);
     }
   }
 
-  private callHandlers(record): void {
-    if (this.hasHandlers()) {
-      this.handlers.forEach((handler) => {
-        handler.handle(record);
-      });
-    } else {
+  protected makeRecord(msg: string, level: LogLevel): LogRecord {
+    return {
+      key: this.key,
+      date: new Date(),
+      msg: msg,
+      level: level,
+    };
+  }
+
+  protected callHandlers(record: LogRecord): void {
+    for (const handler of this.handlers) {
+      handler.handle(record);
+    }
+    if (this.parent) {
       this.parent.callHandlers(record);
     }
-  }
-}
-
-abstract class Handler {
-  public handle(record): void {
-    this.emit(record);
-  }
-
-  protected abstract emit(record);
-}
-
-class ConsoleHandler extends Handler {
-  constructor() {
-    super();
-  }
-
-  protected emit(record): void {
-    console.error(record.created, ': ', record.name, ': ', record.message);
   }
 }
 
