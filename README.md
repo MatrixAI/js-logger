@@ -1,8 +1,18 @@
 # js-logger
 
-This library provides a javascript logger which runs similar to the python logger. Messages are sent to STDERR by defaul
+[![pipeline status](https://gitlab.com/MatrixAI/open-source/js-logger/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/js-logger/commits/master)
 
-## Hierarchical Loggers
+This library provies a JavaScript logger that is similar to the Python logger.
+
+## Installation
+
+```sh
+npm install --save @matrixai/logger
+```
+
+## Usage
+
+### Hierarchical Loggers
 
 Generate sub-loggers for different domains of a project
 
@@ -22,7 +32,7 @@ const subLogger = logger.getChild('scope');
 const newLogger = subLogger.getParent();
 ```
 
-## Message types
+### Message types
 
 Can log 4 different types of messages
 
@@ -52,7 +62,30 @@ logger.error('output');
 
 ## Development
 
+Run `nix-shell`, and once you're inside, you can use:
+
+```sh
+# install (or reinstall packages from package.json)
+npm install
+# build the dist
+npm run build
+# run the repl (this allows you to import from ./src)
+npm run ts-node
+# run the tests
+npm run test
+# lint the source code
+npm run lint
+# automatically fix the source
+npm run lintfix
 ```
-npm version <update_type>
+
+### Publishing
+
+```sh
+# npm login
+npm version patch # major/minor/patch
+npm run build
 npm publish --access public
+git push
+git push --tags
 ```
