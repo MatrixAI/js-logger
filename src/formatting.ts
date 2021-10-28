@@ -2,10 +2,11 @@ import type { LogRecord, LogFormatter } from './types';
 
 import { levelToString } from './types';
 
+const level = Symbol('level');
 const key = Symbol('key');
+const keys = Symbol('keys');
 const date = Symbol('date');
 const msg = Symbol('msg');
-const level = Symbol('level');
 
 function format(
   strings: TemplateStringsArray,
@@ -17,6 +18,14 @@ function format(
       const value = values[i];
       if (value === key) {
         result += record.key;
+      } else if (value === keys) {
+        let logger = record.logger;
+        let keysPath = logger.key;
+        while (logger.parent != null) {
+          logger = logger.parent;
+          keysPath = `${logger.key}.${keysPath}`;
+        }
+        result += keysPath;
       } else if (value === date) {
         result += record.date.toISOString();
       } else if (value === msg) {
@@ -34,4 +43,4 @@ function format(
 
 const formatter = format`${level}:${key}:${msg}`;
 
-export { key, date, msg, format, formatter };
+export { level, key, keys, date, msg, format, formatter };

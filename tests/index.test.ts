@@ -87,4 +87,15 @@ describe('index', () => {
     childLogger.info('INFO MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('INFO:child:INFO MESSAGE');
   });
+  test('Testing logger hierarchy with keys format', () => {
+    const consoleSpy = jest.spyOn(console, 'log');
+    const logger = new Logger('root', LogLevel.NOTSET, [
+      new ConsoleHandler(
+        formatting.format`${formatting.level}:${formatting.keys}:${formatting.msg}`,
+      ),
+    ]);
+    const childLogger = logger.getChild('child');
+    childLogger.debug('DEBUG MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith('DEBUG:root.child:DEBUG MESSAGE');
+  });
 });

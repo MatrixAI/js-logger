@@ -1,3 +1,5 @@
+import type Logger from './Logger';
+
 enum LogLevel {
   NOTSET = 0,
   DEBUG = 1,
@@ -35,6 +37,7 @@ type LogRecord = {
   date: Date;
   msg: string;
   level: LogLevel;
+  logger: Logger;
 };
 
 type LogFormatter = (record: LogRecord) => string;

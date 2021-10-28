@@ -103,6 +103,7 @@ class Logger {
       date: new Date(),
       msg: msg,
       level: level,
+      logger: this,
     };
   }
 
