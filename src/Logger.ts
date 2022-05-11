@@ -1,7 +1,7 @@
 import type { ToString, LogRecord } from './types';
+import type Handler from './Handler';
 
 import { LogLevel } from './types';
-import Handler from './Handler';
 import ConsoleHandler from './handlers/ConsoleHandler';
 
 class Logger {

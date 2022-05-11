@@ -1,23 +1,30 @@
+
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "sourceMap": false,
+    "tsBuildInfoFile": "./dist/tsbuildinfo",
+    "incremental": true,
+    "sourceMap": true,
     "declaration": true,
     "allowJs": true,
     "strictNullChecks": true,
     "noImplicitAny": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "module": "CommonJS",
-    "target": "ES2016",
+    "target": "ES2021",
     "baseUrl": "./src",
     "paths": {
       "@": ["index"],
       "@/*": ["*"]
-    }
+    },
+    "noEmit": true
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./src/**/*.json",
+    "./tests/**/*"
   ]
 }
