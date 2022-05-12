@@ -16,7 +16,8 @@
     "ts-node": "ts-node -r tsconfig-paths/register",
     "test": "jest",
     "lint": "eslint '{src,tests}/**/*.{js,ts}'",
-    "lintfix": "eslint '{src,tests}/**/*.{js,ts}' --fix"
+    "lintfix": "eslint '{src,tests}/**/*.{js,ts}' --fix",
+    "docs": "rm -r ./docs || true; typedoc --gitRevision master --tsconfig ./tsconfig.build.json --out ./docs src"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",

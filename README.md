@@ -29,6 +29,14 @@ npm run lint
 npm run lintfix
 ```
 
+### Docs Generation
+
+```sh
+npm run docs
+```
+
+See the docs at: https://matrixai.github.io/js-logger/
+
 ### Publishing
 
 ```sh
