@@ -11,8 +11,7 @@ lint:
   stage: check
   script:
     - >
-        nix-shell -I nixpkgs=./pkgs.nix --packages nodejs --run '
-        npm install;
+        nix-shell --run '
         npm run lint;
         '
 
@@ -20,7 +19,6 @@ test:
   stage: check
   script:
     - >
-        nix-shell -I nixpkgs=./pkgs.nix --packages nodejs --run '
-        npm install;
+        nix-shell --run '
         npm run test;
         '
