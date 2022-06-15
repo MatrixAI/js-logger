@@ -2,7 +2,7 @@ import Handler from '../Handler';
 
 class ConsoleHandler extends Handler {
   public emit(output: string): void {
-    console.log(output);
+    console.error(output);
   }
 }
 
