@@ -98,4 +98,20 @@ describe('index', () => {
     childLogger.debug('DEBUG MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('DEBUG:root.child:DEBUG MESSAGE');
   });
+  test('Testing logger trace', () => {
+    jest
+      .useFakeTimers('modern')
+      .setSystemTime(new Date('2020-01-01').getTime());
+    const consoleSpy = jest.spyOn(console, 'log');
+    const logger = new Logger('root', LogLevel.NOTSET, [
+      new ConsoleHandler(
+        formatting.format`${formatting.date}:${formatting.msg}${formatting.trace}`,
+      ),
+    ]);
+    logger.debug('DEBUG MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('2020-01-01T00:00:00.000Z:DEBUG MESSAGE'),
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('at'));
+  });
 });
