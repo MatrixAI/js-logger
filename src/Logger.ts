@@ -1,4 +1,4 @@
-import type { ToString, LogRecord } from './types';
+import type { ToString, LogRecord, LogFormatter } from './types';
 import type Handler from './Handler';
 
 import { LogLevel } from './types';
@@ -74,26 +74,26 @@ class Logger {
     }
   }
 
-  public debug(data: ToString): void {
-    this.log(data.toString(), LogLevel.DEBUG);
+  public debug(data: ToString, format?: LogFormatter): void {
+    this.log(data.toString(), LogLevel.DEBUG, format);
   }
 
-  public info(data: ToString): void {
-    this.log(data.toString(), LogLevel.INFO);
+  public info(data: ToString, format?: LogFormatter): void {
+    this.log(data.toString(), LogLevel.INFO, format);
   }
 
-  public warn(data: ToString): void {
-    this.log(data.toString(), LogLevel.WARN);
+  public warn(data: ToString, format?: LogFormatter): void {
+    this.log(data.toString(), LogLevel.WARN, format);
   }
 
-  public error(data: ToString): void {
-    this.log(data.toString(), LogLevel.ERROR);
+  public error(data: ToString, format?: LogFormatter): void {
+    this.log(data.toString(), LogLevel.ERROR, format);
   }
 
-  protected log(msg: string, level: LogLevel): void {
+  protected log(msg: string, level: LogLevel, format?: LogFormatter): void {
     const record = this.makeRecord(msg, level);
     if (level >= this.getEffectiveLevel()) {
-      this.callHandlers(record);
+      this.callHandlers(record, format);
     }
   }
 
@@ -107,12 +107,12 @@ class Logger {
     };
   }
 
-  protected callHandlers(record: LogRecord): void {
+  protected callHandlers(record: LogRecord, format?: LogFormatter): void {
     for (const handler of this.handlers) {
-      handler.handle(record);
+      handler.handle(record, format);
     }
     if (this.parent) {
-      this.parent.callHandlers(record);
+      this.parent.callHandlers(record, format);
     }
   }
 }

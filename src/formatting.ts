@@ -34,9 +34,19 @@ function format(
       } else if (value === level) {
         result += levelToString(record.level);
       } else if (value === trace) {
-        const errorStack = new Error().stack ?? '';
-        const formattedStack = errorStack.split('\n').splice(7).join('\n');
-        result += '\n' + formattedStack;
+        const errorStack = new Error().stack;
+        if (errorStack != null) {
+          const splitErrorStack = errorStack.split('\n');
+          const position =
+            splitErrorStack.findIndex((value) => /Logger\.log/.test(value)) ??
+            0;
+          const formattedStack = splitErrorStack
+            .splice(position + 2)
+            .join('\n');
+          result += '\n' + formattedStack;
+        } else {
+          result += '';
+        }
       } else {
         result += value.toString();
       }

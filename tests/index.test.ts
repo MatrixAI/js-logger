@@ -114,4 +114,16 @@ describe('index', () => {
     );
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('at'));
   });
+  test('Testing overriding log format', () => {
+    const consoleSpy = jest.spyOn(console, 'log');
+    const logger = new Logger('root', LogLevel.NOTSET);
+    logger.debug('DEBUG MESSAGE', formatting.format`OVERRIDDEN`);
+    expect(consoleSpy).toHaveBeenCalledWith('OVERRIDDEN');
+    logger.info('INFO MESSAGE', formatting.format`OVERRIDDEN`);
+    expect(consoleSpy).toHaveBeenCalledWith('OVERRIDDEN');
+    logger.warn('WARN MESSAGE', formatting.format`OVERRIDDEN`);
+    expect(consoleSpy).toHaveBeenCalledWith('OVERRIDDEN');
+    logger.error('ERROR MESSAGE', formatting.format`OVERRIDDEN`);
+    expect(consoleSpy).toHaveBeenCalledWith('OVERRIDDEN');
+  });
 });
