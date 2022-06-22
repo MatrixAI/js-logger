@@ -7,6 +7,7 @@ const key = Symbol('key');
 const keys = Symbol('keys');
 const date = Symbol('date');
 const msg = Symbol('msg');
+const trace = Symbol('trace');
 
 function format(
   strings: TemplateStringsArray,
@@ -32,6 +33,20 @@ function format(
         result += record.msg;
       } else if (value === level) {
         result += levelToString(record.level);
+      } else if (value === trace) {
+        const errorStack = new Error().stack;
+        if (errorStack != null) {
+          const splitErrorStack = errorStack.split('\n');
+          const position =
+            splitErrorStack.findIndex((value) => /Logger\.log/.test(value)) ??
+            0;
+          const formattedStack = splitErrorStack
+            .splice(position + 2)
+            .join('\n');
+          result += '\n' + formattedStack;
+        } else {
+          result += '';
+        }
       } else {
         result += value.toString();
       }
@@ -43,4 +58,4 @@ function format(
 
 const formatter = format`${level}:${key}:${msg}`;
 
-export { level, key, keys, date, msg, format, formatter };
+export { level, key, keys, date, msg, trace, format, formatter };

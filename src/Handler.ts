@@ -13,8 +13,8 @@ abstract class Handler {
     this.formatter = formatter;
   }
 
-  public handle(record: LogRecord): void {
-    const output = this.format(record);
+  public handle(record: LogRecord, format?: LogFormatter): void {
+    const output = format != null ? format(record) : this.format(record);
     this.emit(output);
   }
 
