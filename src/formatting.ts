@@ -1,4 +1,5 @@
 import type { LogRecord, LogFormatter } from './types';
+import Logger from './Logger';
 
 import { levelToString } from './types';
 
@@ -34,18 +35,27 @@ function format(
       } else if (value === level) {
         result += levelToString(record.level);
       } else if (value === trace) {
-        const errorStack = new Error().stack;
-        if (errorStack != null) {
-          const splitErrorStack = errorStack.split('\n');
-          const position =
-            splitErrorStack.findIndex((value) => /Logger\.log/.test(value)) ??
-            0;
-          const formattedStack = splitErrorStack
-            .splice(position + 2)
-            .join('\n');
-          result += '\n' + formattedStack;
+        if ('stackTraceLimit' in Error && 'captureStackTrace' in Error) {
+          Error.stackTraceLimit++;
+          const newError = {} as { stack: string };
+          // @ts-ignore: protected property
+          Error.captureStackTrace(newError, Logger.prototype.log);
+          Error.stackTraceLimit--;
+          const errorStack = newError.stack;
+          if (errorStack != null) {
+            const formattedStack = errorStack.split('\n').splice(2).join('\n');
+            result += '\n' + formattedStack;
+          } else {
+            result += '';
+          }
         } else {
-          result += '';
+          const errorStack = new Error().stack;
+          if (errorStack != null) {
+            const formattedStack = errorStack.split('\n').splice(1).join('\n');
+            result += '\n' + formattedStack;
+          } else {
+            result += '';
+          }
         }
       } else {
         result += value.toString();
