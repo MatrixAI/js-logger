@@ -5,8 +5,8 @@ describe('index', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  test('Testing basic usage of the logger', () => {
-    const consoleSpy = jest.spyOn(console, 'error');
+  test('Testing basic usage of the logger with `console`', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root');
     logger.debug('DEBUG MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('DEBUG:root:DEBUG MESSAGE');
@@ -16,9 +16,10 @@ describe('index', () => {
     expect(consoleSpy).toHaveBeenCalledWith('WARN:root:WARN MESSAGE');
     logger.error('ERROR MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('ERROR:root:ERROR MESSAGE');
+    consoleSpy.mockRestore();
   });
   test('Testing standard stream usage', () => {
-    const stderrSpy = jest.spyOn(process.stderr, 'write');
+    const stderrSpy = jest.spyOn(process.stderr, 'write').mockReturnValue(true);
     const logger = new Logger('root', LogLevel.NOTSET, [new StreamHandler()]);
     logger.debug('DEBUG MESSAGE');
     expect(stderrSpy).toHaveBeenCalledWith('DEBUG:root:DEBUG MESSAGE' + '\n');
@@ -28,12 +29,13 @@ describe('index', () => {
     expect(stderrSpy).toHaveBeenCalledWith('WARN:root:WARN MESSAGE' + '\n');
     logger.error('ERROR MESSAGE');
     expect(stderrSpy).toHaveBeenCalledWith('ERROR:root:ERROR MESSAGE' + '\n');
+    stderrSpy.mockRestore();
   });
   test('Testing custom formatting', () => {
     jest
       .useFakeTimers('modern')
       .setSystemTime(new Date('2020-01-01').getTime());
-    const consoleSpy = jest.spyOn(console, 'error');
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.NOTSET, [
       new ConsoleHandler(
         formatting.format`${formatting.date}:${formatting.msg}`,
@@ -55,9 +57,10 @@ describe('index', () => {
     expect(consoleSpy).toHaveBeenCalledWith(
       '2020-01-01T00:00:00.000Z:ERROR MESSAGE',
     );
+    consoleSpy.mockRestore();
   });
   test('Testing logger hierarchy', () => {
-    const consoleSpy = jest.spyOn(console, 'error');
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root');
     const childLogger = logger.getChild('child');
     childLogger.debug('DEBUG MESSAGE');
@@ -68,9 +71,10 @@ describe('index', () => {
     expect(consoleSpy).toHaveBeenCalledWith('WARN:child:WARN MESSAGE');
     childLogger.error('ERROR MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('ERROR:child:ERROR MESSAGE');
+    consoleSpy.mockRestore();
   });
   test('Testing logger level hierarchy', () => {
-    const consoleSpy = jest.spyOn(console, 'error');
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.WARN);
     const childLogger = logger.getChild('child');
     childLogger.debug('DEBUG MESSAGE');
@@ -86,9 +90,10 @@ describe('index', () => {
     expect(consoleSpy).toHaveBeenCalledWith('DEBUG:child:DEBUG MESSAGE');
     childLogger.info('INFO MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('INFO:child:INFO MESSAGE');
+    consoleSpy.mockRestore();
   });
   test('Testing logger hierarchy with keys format', () => {
-    const consoleSpy = jest.spyOn(console, 'error');
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.NOTSET, [
       new ConsoleHandler(
         formatting.format`${formatting.level}:${formatting.keys}:${formatting.msg}`,
@@ -97,12 +102,13 @@ describe('index', () => {
     const childLogger = logger.getChild('child');
     childLogger.debug('DEBUG MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('DEBUG:root.child:DEBUG MESSAGE');
+    consoleSpy.mockRestore();
   });
   test('Testing logger trace', () => {
     jest
       .useFakeTimers('modern')
       .setSystemTime(new Date('2020-01-01').getTime());
-    const consoleSpy = jest.spyOn(console, 'error');
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.NOTSET, [
       new ConsoleHandler(
         formatting.format`${formatting.date}:${formatting.msg}${formatting.trace}`,
@@ -110,12 +116,14 @@ describe('index', () => {
     ]);
     logger.debug('DEBUG MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('2020-01-01T00:00:00.000Z:DEBUG MESSAGE'),
+      expect.stringMatching(
+        /^2020-01-01T00:00:00\.000Z:DEBUG MESSAGE\n(?:.+at.+\n)+.+at.+$/,
+      ),
     );
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('at'));
+    consoleSpy.mockRestore();
   });
   test('Testing overriding log format', () => {
-    const consoleSpy = jest.spyOn(console, 'error');
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.NOTSET);
     logger.debug('DEBUG MESSAGE', formatting.format`OVERRIDDEN`);
     expect(consoleSpy).toHaveBeenCalledWith('OVERRIDDEN');
@@ -125,5 +133,6 @@ describe('index', () => {
     expect(consoleSpy).toHaveBeenCalledWith('OVERRIDDEN');
     logger.error('ERROR MESSAGE', formatting.format`OVERRIDDEN`);
     expect(consoleSpy).toHaveBeenCalledWith('OVERRIDDEN');
+    consoleSpy.mockRestore();
   });
 });
