@@ -10,6 +10,9 @@ const date = Symbol('date');
 const msg = Symbol('msg');
 const trace = Symbol('trace');
 
+const hasCaptureStackTrace = 'captureStackTrace' in Error;
+const hasStackTraceLimit = 'stackTraceLimit' in Error;
+
 function format(
   strings: TemplateStringsArray,
   ...values: Array<any>
@@ -35,28 +38,21 @@ function format(
       } else if (value === level) {
         result += levelToString(record.level);
       } else if (value === trace) {
-        if ('stackTraceLimit' in Error && 'captureStackTrace' in Error) {
+        let stack: string;
+        if (hasCaptureStackTrace && hasStackTraceLimit) {
           Error.stackTraceLimit++;
-          const newError = {} as { stack: string };
-          // @ts-ignore: protected property
-          Error.captureStackTrace(newError, Logger.prototype.log);
+          const error = {} as { stack: string };
+          // @ts-ignore: protected `Logger.prototype.log`
+          Error.captureStackTrace(error, Logger.prototype.log);
           Error.stackTraceLimit--;
-          const errorStack = newError.stack;
-          if (errorStack != null) {
-            const formattedStack = errorStack.split('\n').splice(2).join('\n');
-            result += '\n' + formattedStack;
-          } else {
-            result += '';
-          }
+          stack = error.stack;
+          // Remove the stack title and the first stack line for `Logger.prototype.log`
+          stack = stack.slice(stack.indexOf('\n', stack.indexOf('\n') + 1) + 1);
         } else {
-          const errorStack = new Error().stack;
-          if (errorStack != null) {
-            const formattedStack = errorStack.split('\n').splice(1).join('\n');
-            result += '\n' + formattedStack;
-          } else {
-            result += '';
-          }
+          stack = new Error().stack ?? '';
+          stack = stack.slice(stack.indexOf('\n') + 1);
         }
+        if (stack !== '') result += '\n' + stack;
       } else {
         result += value.toString();
       }
