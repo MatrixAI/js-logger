@@ -1,5 +1,6 @@
 async function setup() {
-  console.log('GLOBAL SETUP');
+  // eslint-disable-next-line no-console
+  console.log('\nGLOBAL SETUP');
 }
 
 export default setup;

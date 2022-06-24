@@ -1,7 +1,7 @@
 { pkgs ? import ./pkgs.nix {} }:
 
 with pkgs;
-pkgs.mkShell {
+mkShell {
   nativeBuildInputs = [
     nodejs
     nodePackages.node2nix

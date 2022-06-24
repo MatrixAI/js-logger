@@ -1,6 +1,7 @@
 # js-logger
 
-[![pipeline status](https://gitlab.com/MatrixAI/open-source/js-logger/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/js-logger/commits/master)
+staging:[![pipeline status](https://gitlab.com/MatrixAI/open-source/js-logger/badges/staging/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/js-logger/commits/staging)
+master:[![pipeline status](https://gitlab.com/MatrixAI/open-source/js-logger/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/js-logger/commits/master)
 
 This library provies a JavaScript logger that is similar to the Python logger.
 
