@@ -1,13 +1,34 @@
 import process from 'process';
-import Logger, { LogLevel, ConsoleHandler, StreamHandler, formatting } from '@';
+import Logger, {
+  LogLevel,
+  ConsoleErrHandler,
+  ConsoleOutHandler,
+  StreamHandler,
+  formatting,
+} from '@';
 
 describe('index', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  test('Testing basic usage of the logger with `console`', () => {
+  test('Testing basic usage of the logger with `console.error`', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root');
+    logger.debug('DEBUG MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith('DEBUG:root:DEBUG MESSAGE');
+    logger.info('INFO MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith('INFO:root:INFO MESSAGE');
+    logger.warn('WARN MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith('WARN:root:WARN MESSAGE');
+    logger.error('ERROR MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith('ERROR:root:ERROR MESSAGE');
+    consoleSpy.mockRestore();
+  });
+  test('Testing basic usage of the logger with `console.log`', () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockReturnValue();
+    const logger = new Logger('root', LogLevel.NOTSET, [
+      new ConsoleOutHandler(),
+    ]);
     logger.debug('DEBUG MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('DEBUG:root:DEBUG MESSAGE');
     logger.info('INFO MESSAGE');
@@ -37,7 +58,7 @@ describe('index', () => {
       .setSystemTime(new Date('2020-01-01').getTime());
     const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.NOTSET, [
-      new ConsoleHandler(
+      new ConsoleErrHandler(
         formatting.format`${formatting.date}:${formatting.msg}`,
       ),
     ]);
@@ -95,7 +116,7 @@ describe('index', () => {
   test('Testing logger hierarchy with keys format', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.NOTSET, [
-      new ConsoleHandler(
+      new ConsoleErrHandler(
         formatting.format`${formatting.level}:${formatting.keys}:${formatting.msg}`,
       ),
     ]);
@@ -110,7 +131,7 @@ describe('index', () => {
       .setSystemTime(new Date('2020-01-01').getTime());
     const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.NOTSET, [
-      new ConsoleHandler(
+      new ConsoleErrHandler(
         formatting.format`${formatting.date}:${formatting.msg}${formatting.trace}`,
       ),
     ]);

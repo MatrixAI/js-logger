@@ -2,7 +2,7 @@ import type { ToString, LogRecord, LogFormatter } from './types';
 import type Handler from './Handler';
 
 import { LogLevel } from './types';
-import ConsoleHandler from './handlers/ConsoleHandler';
+import ConsoleErrHandler from './handlers/ConsoleErrHandler';
 
 class Logger {
   public key: string;
@@ -14,7 +14,7 @@ class Logger {
   constructor(
     key: string = 'root',
     level: LogLevel = LogLevel.NOTSET,
-    handlers: Array<Handler> = [new ConsoleHandler()],
+    handlers: Array<Handler> = [new ConsoleErrHandler()],
     parent?: Logger,
   ) {
     this.key = key;
