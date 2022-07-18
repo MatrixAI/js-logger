@@ -14,13 +14,14 @@
     "prepare": "tsc -p ./tsconfig.build.json",
     "build": "rimraf ./dist && tsc -p ./tsconfig.build.json",
     "postversion": "npm install --package-lock-only --ignore-scripts --silent",
-    "ts-node": "ts-node -r tsconfig-paths/register",
+    "ts-node": "ts-node",
     "test": "jest",
     "lint": "eslint '{src,tests}/**/*.{js,ts}'",
     "lintfix": "eslint '{src,tests}/**/*.{js,ts}' --fix",
     "docs": "rimraf ./docs && typedoc --gitRevision master --tsconfig ./tsconfig.build.json --out ./docs src"
   },
   "devDependencies": {
+    "@swc/core": "^1.2.215",
     "@types/jest": "^27.0.2",
     "@types/node": "^16.11.7",
     "@typescript-eslint/eslint-plugin": "^5.23.0",
