@@ -7,6 +7,7 @@ import ConsoleErrHandler from './handlers/ConsoleErrHandler';
 class Logger {
   public key: string;
   public level: LogLevel;
+  public filter?: RegExp;
   public readonly handlers: Set<Handler>;
   public readonly parent?: Logger;
   public readonly loggers: { [key: string]: Logger } = {};
@@ -74,6 +75,10 @@ class Logger {
     }
   }
 
+  public setFilter(filter: RegExp) {
+    this.filter = filter;
+  }
+
   public debug(data: ToString, format?: LogFormatter): void {
     this.log(data.toString(), LogLevel.DEBUG, format);
   }
@@ -107,12 +112,21 @@ class Logger {
     };
   }
 
-  protected callHandlers(record: LogRecord, format?: LogFormatter): void {
+  protected callHandlers(
+    record: LogRecord,
+    format?: LogFormatter,
+    keys: Array<string> = [],
+  ): void {
+    keys.push(this.key);
+    if (this.filter != null) {
+      const keysPath = keys.reduce((prev, curr) => `${curr}.${prev}`);
+      if (!this.filter.test(keysPath)) return;
+    }
     for (const handler of this.handlers) {
       handler.handle(record, format);
     }
     if (this.parent) {
-      this.parent.callHandlers(record, format);
+      this.parent.callHandlers(record, format, keys);
     }
   }
 }

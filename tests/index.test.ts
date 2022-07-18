@@ -156,4 +156,27 @@ describe('index', () => {
     expect(consoleSpy).toHaveBeenCalledWith('OVERRIDDEN');
     consoleSpy.mockRestore();
   });
+  test('Test custom filters', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
+    const logger = new Logger('root');
+    const interLogger = logger.getChild('inter');
+    const leaf1Logger = interLogger.getChild('leaf1');
+    const leaf2Logger = interLogger.getChild('leaf2');
+    logger.setFilter(/^root\.inter/);
+    leaf1Logger.info('INFO MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith('INFO:leaf1:INFO MESSAGE');
+    leaf2Logger.info('INFO MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith('INFO:leaf2:INFO MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledTimes(2);
+    logger.setFilter(/^root\.inter\.leaf1/);
+    leaf1Logger.info('INFO MESSAGE');
+    leaf2Logger.info('INFO MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith('INFO:leaf1:INFO MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledTimes(3);
+    logger.setFilter(/^root\.inter\.leaf2/);
+    leaf1Logger.info('INFO MESSAGE');
+    leaf2Logger.info('INFO MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledWith('INFO:leaf2:INFO MESSAGE');
+    expect(consoleSpy).toHaveBeenCalledTimes(4);
+  });
 });
