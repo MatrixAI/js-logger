@@ -53,9 +53,7 @@ describe('index', () => {
     stderrSpy.mockRestore();
   });
   test('Testing custom formatting', () => {
-    jest
-      .useFakeTimers('modern')
-      .setSystemTime(new Date('2020-01-01').getTime());
+    jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
     const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.NOTSET, [
       new ConsoleErrHandler(
@@ -79,6 +77,7 @@ describe('index', () => {
       '2020-01-01T00:00:00.000Z:ERROR MESSAGE',
     );
     consoleSpy.mockRestore();
+    jest.useRealTimers();
   });
   test('Testing logger hierarchy', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
@@ -106,7 +105,7 @@ describe('index', () => {
     expect(consoleSpy).toHaveBeenCalledWith('WARN:child:WARN MESSAGE');
     childLogger.error('ERROR MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('ERROR:child:ERROR MESSAGE');
-    childLogger.setLevel(LogLevel.DEBUG);
+    logger.setLevel(LogLevel.DEBUG);
     childLogger.debug('DEBUG MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('DEBUG:child:DEBUG MESSAGE');
     childLogger.info('INFO MESSAGE');
@@ -125,14 +124,12 @@ describe('index', () => {
     expect(consoleSpy).toHaveBeenCalledWith('DEBUG:root.child:DEBUG MESSAGE');
     consoleSpy.mockRestore();
   });
-  test('Testing logger trace', () => {
-    jest
-      .useFakeTimers('modern')
-      .setSystemTime(new Date('2020-01-01').getTime());
+  test('Testing logger stacktrace', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
     const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
     const logger = new Logger('root', LogLevel.NOTSET, [
       new ConsoleErrHandler(
-        formatting.format`${formatting.date}:${formatting.msg}${formatting.trace}`,
+        formatting.format`${formatting.date}:${formatting.msg}${formatting.stack}`,
       ),
     ]);
     logger.debug('DEBUG MESSAGE');
@@ -142,6 +139,7 @@ describe('index', () => {
       ),
     );
     consoleSpy.mockRestore();
+    jest.useRealTimers();
   });
   test('Testing overriding log format', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
@@ -178,5 +176,34 @@ describe('index', () => {
     leaf2Logger.info('INFO MESSAGE');
     expect(consoleSpy).toHaveBeenCalledWith('INFO:leaf2:INFO MESSAGE');
     expect(consoleSpy).toHaveBeenCalledTimes(4);
+    consoleSpy.mockRestore();
+  });
+  test('Test JSON structured logging', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
+    const logger = new Logger('root', LogLevel.NOTSET, [
+      new ConsoleErrHandler(formatting.jsonFormatter),
+    ]);
+    const childLogger = logger.getChild('child');
+    logger.debug('DEBUG MESSAGE', { a: 3 });
+    logger.info('INFO MESSAGE', { b: 4 });
+    logger.warn('WARN MESSAGE', { c: 'abc' });
+    logger.error('ERROR MESSAGE', { f: () => 'lol' });
+    childLogger.info('INFO MESSAGE', {
+      a: {
+        b: () => ({
+          c: {
+            d: 4,
+          },
+        }),
+      },
+    });
+    expect(consoleSpy.mock.calls[0]).toMatchSnapshot();
+    expect(consoleSpy.mock.calls[1]).toMatchSnapshot();
+    expect(consoleSpy.mock.calls[2]).toMatchSnapshot();
+    expect(consoleSpy.mock.calls[3]).toMatchSnapshot();
+    expect(consoleSpy.mock.calls[4]).toMatchSnapshot();
+    consoleSpy.mockRestore();
+    jest.useRealTimers();
   });
 });
