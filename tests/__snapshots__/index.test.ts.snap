@@ -8,7 +8,7 @@ Array [
 
 exports[`index Test JSON structured logging 2`] = `
 Array [
-  "{\\"level\\":\\"INFO\\",\\"key\\":\\"root\\",\\"keys\\":\\"root\\",\\"date\\":\\"2020-01-01T00:00:00.000Z\\",\\"msg\\":\\"INFO MESSAGE\\",\\"b\\":4}",
+  "{\\"4\\":4,\\"level\\":\\"INFO\\",\\"key\\":\\"root\\",\\"keys\\":\\"root\\",\\"date\\":\\"2020-01-01T00:00:00.000Z\\",\\"msg\\":\\"INFO MESSAGE\\"}",
 ]
 `;
 

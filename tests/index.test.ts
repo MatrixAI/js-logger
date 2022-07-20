@@ -186,7 +186,7 @@ describe('index', () => {
     ]);
     const childLogger = logger.getChild('child');
     logger.debug('DEBUG MESSAGE', { a: 3 });
-    logger.info('INFO MESSAGE', { b: 4 });
+    logger.info('INFO MESSAGE', { 4: 4 });
     logger.warn('WARN MESSAGE', { c: 'abc' });
     logger.error('ERROR MESSAGE', { f: () => 'lol' });
     childLogger.info('INFO MESSAGE', {
