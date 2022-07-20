@@ -51,7 +51,7 @@ const suiteCommon = [
             `${summary.name}_samples{name="${result.name}"} ${result.samples}`,
         )
         .join('\n')}
-      `,
+      ` + '\n',
     );
     // eslint-disable-next-line no-console
     console.log('\nSaved to:', path.resolve(filePath));
