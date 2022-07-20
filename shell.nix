@@ -1,4 +1,4 @@
-{ pkgs ? import ./pkgs.nix {} }:
+{ pkgs ? import ./pkgs.nix {}, ci ? false }:
 
 with pkgs;
 mkShell {
@@ -13,7 +13,15 @@ mkShell {
     . ./.env
     set +o allexport
     set -v
-
+    ${
+      lib.optionalString ci
+      ''
+      set -o errexit
+      set -o nounset
+      set -o pipefail
+      shopt -s inherit_errexit
+      ''
+    }
     mkdir --parents "$(pwd)/tmp"
 
     # Built executables and NPM executables

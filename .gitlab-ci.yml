@@ -50,9 +50,10 @@ check:lint:
   needs: []
   script:
     - >
-        nix-shell --run '
-        npm run lint;
-        '
+      nix-shell --arg ci true --run '
+      npm run lint;
+      npm run lint-shell;
+      '
   rules:
     # Runs on feature and staging commits and ignores version commits
     - if: $CI_COMMIT_BRANCH =~ /^(?:feature.*|staging)$/ && $CI_COMMIT_TITLE !~ /^[0-9]+\.[0-9]+\.[0-9]+(?:-.*[0-9]+)?$/
@@ -67,10 +68,9 @@ check:test:
   needs: []
   script:
     - >
-        nix-shell --run '
-        npm run build --verbose;
-        npm test -- --ci --coverage;
-        '
+      nix-shell --arg ci true --run '
+      npm test -- --ci --coverage;
+      '
   artifacts:
     when: always
     reports:
@@ -95,7 +95,7 @@ build:merge:
     # Required for `gh pr create`
     - git remote add upstream "$GH_PROJECT_URL"
     - >
-      nix-shell --run '
+      nix-shell --arg ci true --run '
       gh pr create \
         --head staging \
         --base master \
@@ -120,7 +120,7 @@ build:linux:
   needs: []
   script:
     - >
-      nix-shell --run '
+      nix-shell --arg ci true --run '
       npm run build --verbose;
       npm test -- --ci --coverage;
       '
@@ -204,7 +204,7 @@ build:prerelease:
     - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ./.npmrc
     - echo 'Publishing library prerelease'
     - >
-      nix-shell --run '
+      nix-shell --arg ci true --run '
       npm publish --tag prerelease --access public;
       '
   after_script:
@@ -236,7 +236,7 @@ integration:merge:
     GIT_DEPTH: 0
   script:
     - >
-      nix-shell --run '
+      nix-shell --arg ci true --run '
       printf "Pipeline Succeeded on ${CI_PIPELINE_ID} for ${CI_COMMIT_SHA}\n\n${CI_PIPELINE_URL}" \
       | gh pr comment staging \
         --body-file - \
@@ -266,7 +266,7 @@ release:distribution:
     - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ./.npmrc
     - echo 'Publishing library'
     - >
-      nix-shell --run '
+      nix-shell --arg ci true --run '
       npm publish --access public;
       '
   after_script:
