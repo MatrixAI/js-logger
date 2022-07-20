@@ -23,13 +23,7 @@ class Logger {
     this.level = level;
     this.handlers = new Set(handlers);
     this.parent = parent;
-    // Precalculate the keys path to avoid calculating each time in `this.makeRecord`
-    let logger: Logger = this;
-    this.keys = this.key;
-    while (logger.parent != null) {
-      logger = logger.parent;
-      this.keys = `${logger.key}.${this.keys}`;
-    }
+    this.keys = parent != null ? `${parent.keys}.${key}` : key;
   }
 
   public getChild(key: string): Logger {
@@ -217,16 +211,13 @@ class Logger {
     record: LogRecord,
     level: LogLevel,
     format?: LogFormatter,
-    keys: Array<string> = [],
+    keys: string = '',
   ): void {
     // Filter on level before calling handlers
     // This is also called when traversing up the parent
     if (level < this.getEffectiveLevel()) return;
-    keys.push(this.key);
-    if (this.filter != null) {
-      const keysPath = keys.reduce((prev, curr) => `${curr}.${prev}`);
-      if (!this.filter.test(keysPath)) return;
-    }
+    keys = `${this.key}.${keys}`;
+    if (this.filter != null && !this.filter.test(keys)) return;
     for (const handler of this.handlers) {
       handler.handle(record, format);
     }
