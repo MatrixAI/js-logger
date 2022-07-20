@@ -155,12 +155,16 @@ build:windows:
     - npm install --ignore-scripts
     - $env:Path = "$(npm bin);" + $env:Path
     - npm run build --verbose
-    - npm test -- --ci
+    - npm test -- --ci --coverage
   artifacts:
     when: always
     reports:
       junit:
         - ./tmp/junit/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: ./tmp/coverage/cobertura-coverage.xml
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   rules:
     # Runs on staging commits and ignores version commits
     - if: $CI_COMMIT_BRANCH == 'staging' && $CI_COMMIT_TITLE !~ /^[0-9]+\.[0-9]+\.[0-9]+(?:-.*[0-9]+)?$/
@@ -180,12 +184,16 @@ build:macos:
     - npm install --ignore-scripts
     - export PATH="$(npm bin):$PATH"
     - npm run build --verbose
-    - npm test -- --ci
+    - npm test -- --ci --coverage
   artifacts:
     when: always
     reports:
       junit:
         - ./tmp/junit/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: ./tmp/coverage/cobertura-coverage.xml
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   rules:
     # Runs on staging commits and ignores version commits
     - if: $CI_COMMIT_BRANCH == 'staging' && $CI_COMMIT_TITLE !~ /^[0-9]+\.[0-9]+\.[0-9]+(?:-.*[0-9]+)?$/
