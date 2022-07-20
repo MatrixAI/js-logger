@@ -5,9 +5,10 @@ import ConsoleErrHandler from './handlers/ConsoleErrHandler';
 import * as utils from './utils';
 
 class Logger {
-  public key: string;
+  public readonly key: string;
   public level: LogLevel;
   public filter?: RegExp;
+  public readonly keys: string;
   public readonly handlers: Set<Handler>;
   public readonly parent?: Logger;
   public readonly loggers: { [key: string]: Logger } = {};
@@ -22,6 +23,13 @@ class Logger {
     this.level = level;
     this.handlers = new Set(handlers);
     this.parent = parent;
+    // Precalculate the keys path to avoid calculating each time in `this.makeRecord`
+    let logger: Logger = this;
+    this.keys = this.key;
+    while (logger.parent != null) {
+      logger = logger.parent;
+      this.keys = `${logger.key}.${this.keys}`;
+    }
   }
 
   public getChild(key: string): Logger {
@@ -180,19 +188,11 @@ class Logger {
     return {
       logger: this,
       key: this.key,
-      date: new Date(),
+      keys: this.keys,
       level,
       msg: msg?.toString(),
       data,
-      keys: () => {
-        let logger: Logger = this;
-        let keys = this.key;
-        while (logger.parent != null) {
-          logger = logger.parent;
-          keys = `${logger.key}.${keys}`;
-        }
-        return keys;
-      },
+      date: () => new Date(),
       stack: () => {
         let stack: string;
         if (utils.hasCaptureStackTrace && utils.hasStackTraceLimit) {

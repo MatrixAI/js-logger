@@ -44,11 +44,11 @@ type LogData = Record<LogDataKey, LogDataValue>;
 type LogRecord = {
   logger: Logger;
   key: string;
-  date: Date;
+  keys: string;
   level: LogLevel;
   msg: string | undefined;
   data: LogData;
-  keys: () => string;
+  date: () => Date;
   stack: () => string;
 };
 
