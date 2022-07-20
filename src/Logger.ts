@@ -83,14 +83,14 @@ class Logger {
     delete this.filter;
   }
 
-  public debug(msg: ToString | undefined, format?: LogFormatter): void;
+  public debug(msg?: ToString, format?: LogFormatter): void;
   public debug(
     msg: ToString | undefined,
     data: LogData,
     format?: LogFormatter,
   ): void;
   public debug(
-    msg: ToString | undefined,
+    msg?: ToString,
     formatOrData?: LogFormatter | LogData,
     format?: LogFormatter,
   ): void {
@@ -101,14 +101,14 @@ class Logger {
     }
   }
 
-  public info(msg: ToString | undefined, format?: LogFormatter): void;
+  public info(msg?: ToString, format?: LogFormatter): void;
   public info(
     msg: ToString | undefined,
     data: LogData,
     format?: LogFormatter,
   ): void;
   public info(
-    msg: ToString | undefined,
+    msg?: ToString,
     formatOrData?: LogFormatter | LogData,
     format?: LogFormatter,
   ): void {
@@ -119,14 +119,14 @@ class Logger {
     }
   }
 
-  public warn(msg: ToString | undefined, format?: LogFormatter): void;
+  public warn(msg?: ToString, format?: LogFormatter): void;
   public warn(
     msg: ToString | undefined,
     data: LogData,
     format?: LogFormatter,
   ): void;
   public warn(
-    msg: ToString | undefined,
+    msg?: ToString,
     formatOrData?: LogFormatter | LogData,
     format?: LogFormatter,
   ): void {
@@ -137,14 +137,14 @@ class Logger {
     }
   }
 
-  public error(msg: ToString | undefined, format?: LogFormatter): void;
+  public error(msg?: ToString, format?: LogFormatter): void;
   public error(
     msg: ToString | undefined,
     data: LogData,
     format?: LogFormatter,
   ): void;
   public error(
-    msg: ToString | undefined,
+    msg?: ToString,
     formatOrData?: LogFormatter | LogData,
     format?: LogFormatter,
   ): void {

@@ -206,4 +206,28 @@ describe('index', () => {
     consoleSpy.mockRestore();
     jest.useRealTimers();
   });
+  test('Test with undefined messages', () => {
+    let consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
+    const loggerHuman = new Logger('root');
+    loggerHuman.info(undefined);
+    expect(consoleSpy).toHaveBeenCalledWith('INFO:root:');
+    loggerHuman.info(undefined, { a: '123' });
+    expect(consoleSpy).toHaveBeenCalledWith('INFO:root:');
+    loggerHuman.info();
+    expect(consoleSpy).toHaveBeenCalledWith('INFO:root:');
+    expect(consoleSpy).toHaveBeenCalledTimes(3);
+    consoleSpy.mockRestore();
+    consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
+    const loggerJSON = new Logger('root', LogLevel.NOTSET, [
+      new ConsoleErrHandler(formatting.jsonFormatter),
+    ]);
+    // The `msg` key is eliminated because it is `undefined` due to `JSON.stringify`
+    loggerJSON.info(undefined);
+    expect(JSON.parse(consoleSpy.mock.lastCall[0])).not.toHaveProperty('msg');
+    loggerJSON.info(undefined, { a: '123' });
+    expect(JSON.parse(consoleSpy.mock.lastCall[0])).not.toHaveProperty('msg');
+    loggerJSON.info();
+    expect(JSON.parse(consoleSpy.mock.lastCall[0])).not.toHaveProperty('msg');
+    consoleSpy.mockRestore();
+  });
 });
