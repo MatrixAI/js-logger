@@ -20,9 +20,9 @@ function format(
       if (value === key) {
         result += record.key;
       } else if (value === keys) {
-        result += record.keys();
+        result += record.keys;
       } else if (value === date) {
-        result += record.date.toISOString();
+        result += record.date().toISOString();
       } else if (value === msg) {
         if (record.msg != null) result += record.msg;
       } else if (value === level) {
@@ -59,8 +59,6 @@ const jsonFormatter: LogFormatter = (record: LogRecord) => {
     {
       level: utils.levelToString(record.level),
       key: record.key,
-      keys: record.keys(),
-      date: record.date.toISOString(),
       msg: record.msg,
       ...record.data,
     },

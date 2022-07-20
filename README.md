@@ -13,6 +13,8 @@ This library provides a JavaScript/TypeScript logger inspired by Python's logger
 * Supports structured logging through a JSON formatter
 * Supports hierarchical logging through parent-child logger graph
 * CI/CD tests on Linux, MacOS and Windows
+* Zero runtime dependencies!
+* Comprehensive continuous benchmarks in CI/CD
 
 ## Installation
 
