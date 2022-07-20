@@ -7,6 +7,7 @@ import loggerText from './logger_text';
 import loggerStructured from './logger_structured';
 import loggerHierarchy from './logger_hierarchy';
 import loggerFiltered from './logger_filtered';
+import loggerHandlers from './logger_handlers';
 
 async function main(): Promise<void> {
   await fs.promises.mkdir(path.join(__dirname, 'results'), { recursive: true });
@@ -14,6 +15,7 @@ async function main(): Promise<void> {
   await loggerStructured();
   await loggerHierarchy();
   await loggerFiltered();
+  await loggerHandlers();
   const systemData = await si.get({
     cpu: '*',
     osInfo: 'platform, distro, release, kernel, arch',

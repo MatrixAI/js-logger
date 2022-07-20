@@ -1,9 +1,7 @@
 import path from 'path';
-import fs from 'fs';
 import b from 'benny';
 import Logger, { LogLevel, formatting } from '@';
-import BenchHandler from './utils/BenchHandler';
-import packageJson from '../package.json';
+import { BenchHandler, suiteCommon } from './utils';
 
 async function main() {
   const msg = 'Hello World';
@@ -59,20 +57,7 @@ async function main() {
         logger.info(msg, data);
       };
     }),
-    b.cycle(),
-    b.complete(),
-    b.save({
-      file: (summary) => summary.name,
-      folder: path.join(__dirname, 'results'),
-      version: packageJson.version,
-      details: true,
-    }),
-    b.save({
-      file: (summary) => summary.name,
-      folder: path.join(__dirname, 'results'),
-      version: packageJson.version,
-      format: 'chart.html',
-    }),
+    ...suiteCommon,
   );
   return summary;
 }
