@@ -19,7 +19,7 @@ mkShell {
     # Built executables and NPM executables
     export PATH="$(pwd)/dist/bin:$(npm bin):$PATH"
 
-    npm install
+    npm install --ignore-scripts
 
     set +v
   '';
