@@ -4,6 +4,7 @@ with pkgs;
 mkShell {
   nativeBuildInputs = [
     nodejs
+    shellcheck
     gitAndTools.gh
   ];
   shellHook = ''
