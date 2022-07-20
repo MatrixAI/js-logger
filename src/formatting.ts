@@ -1,17 +1,13 @@
 import type { LogRecord, LogFormatter } from './types';
-import Logger from './Logger';
-
-import { levelToString } from './types';
+import * as utils from './utils';
 
 const level = Symbol('level');
 const key = Symbol('key');
 const keys = Symbol('keys');
 const date = Symbol('date');
 const msg = Symbol('msg');
-const trace = Symbol('trace');
-
-const hasCaptureStackTrace = 'captureStackTrace' in Error;
-const hasStackTraceLimit = 'stackTraceLimit' in Error;
+const stack = Symbol('stack');
+const data = Symbol('data');
 
 function format(
   strings: TemplateStringsArray,
@@ -24,34 +20,17 @@ function format(
       if (value === key) {
         result += record.key;
       } else if (value === keys) {
-        let logger = record.logger;
-        let keysPath = logger.key;
-        while (logger.parent != null) {
-          logger = logger.parent;
-          keysPath = `${logger.key}.${keysPath}`;
-        }
-        result += keysPath;
+        result += record.keys();
       } else if (value === date) {
         result += record.date.toISOString();
       } else if (value === msg) {
-        result += record.msg;
+        if (record.msg != null) result += record.msg;
       } else if (value === level) {
-        result += levelToString(record.level);
-      } else if (value === trace) {
-        let stack: string;
-        if (hasCaptureStackTrace && hasStackTraceLimit) {
-          Error.stackTraceLimit++;
-          const error = {} as { stack: string };
-          // @ts-ignore: protected `Logger.prototype.log`
-          Error.captureStackTrace(error, Logger.prototype.log);
-          Error.stackTraceLimit--;
-          stack = error.stack;
-          // Remove the stack title and the first stack line for `Logger.prototype.log`
-          stack = stack.slice(stack.indexOf('\n', stack.indexOf('\n') + 1) + 1);
-        } else {
-          stack = new Error().stack ?? '';
-          stack = stack.slice(stack.indexOf('\n') + 1);
-        }
+        result += utils.levelToString(record.level);
+      } else if (value === data) {
+        result += utils.evalLogData(record.data);
+      } else if (value === stack) {
+        const stack = record.stack();
         if (stack !== '') result += '\n' + stack;
       } else {
         result += value.toString();
@@ -62,6 +41,42 @@ function format(
   };
 }
 
+/**
+ * Default formatter
+ * This only shows the level, key and msg
+ */
 const formatter = format`${level}:${key}:${msg}`;
 
-export { level, key, keys, date, msg, trace, format, formatter };
+/**
+ * Default JSON formatter for structured logging
+ * You should replace this with a formatter based on your required schema
+ * Note that `LogRecord` contains `LogData`, which may contain lazy values
+ * You must use `utils.evalLogData` or `utils.evalLogDataValue` to evaluate
+ * the `LogData`
+ */
+const jsonFormatter: LogFormatter = (record: LogRecord) => {
+  return JSON.stringify(
+    {
+      level: utils.levelToString(record.level),
+      key: record.key,
+      keys: record.keys(),
+      date: record.date.toISOString(),
+      msg: record.msg,
+      ...record.data,
+    },
+    utils.evalLogDataValue,
+  );
+};
+
+export {
+  level,
+  key,
+  keys,
+  date,
+  msg,
+  stack,
+  data,
+  format,
+  formatter,
+  jsonFormatter,
+};

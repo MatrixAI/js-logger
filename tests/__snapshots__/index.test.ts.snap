@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`index Test JSON structured logging 1`] = `
+Array [
+  "{\\"level\\":\\"DEBUG\\",\\"key\\":\\"root\\",\\"keys\\":\\"root\\",\\"date\\":\\"2020-01-01T00:00:00.000Z\\",\\"msg\\":\\"DEBUG MESSAGE\\",\\"a\\":3}",
+]
+`;
+
+exports[`index Test JSON structured logging 2`] = `
+Array [
+  "{\\"4\\":4,\\"level\\":\\"INFO\\",\\"key\\":\\"root\\",\\"keys\\":\\"root\\",\\"date\\":\\"2020-01-01T00:00:00.000Z\\",\\"msg\\":\\"INFO MESSAGE\\"}",
+]
+`;
+
+exports[`index Test JSON structured logging 3`] = `
+Array [
+  "{\\"level\\":\\"WARN\\",\\"key\\":\\"root\\",\\"keys\\":\\"root\\",\\"date\\":\\"2020-01-01T00:00:00.000Z\\",\\"msg\\":\\"WARN MESSAGE\\",\\"c\\":\\"abc\\"}",
+]
+`;
+
+exports[`index Test JSON structured logging 4`] = `
+Array [
+  "{\\"level\\":\\"ERROR\\",\\"key\\":\\"root\\",\\"keys\\":\\"root\\",\\"date\\":\\"2020-01-01T00:00:00.000Z\\",\\"msg\\":\\"ERROR MESSAGE\\",\\"f\\":\\"lol\\"}",
+]
+`;
+
+exports[`index Test JSON structured logging 5`] = `
+Array [
+  "{\\"level\\":\\"INFO\\",\\"key\\":\\"child\\",\\"keys\\":\\"root.child\\",\\"date\\":\\"2020-01-01T00:00:00.000Z\\",\\"msg\\":\\"INFO MESSAGE\\",\\"a\\":{\\"b\\":{\\"c\\":{\\"d\\":4}}}}",
+]
+`;

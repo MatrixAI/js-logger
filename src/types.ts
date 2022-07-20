@@ -8,40 +8,60 @@ enum LogLevel {
   ERROR = 4,
 }
 
-function levelToString(level: LogLevel): string {
-  switch (level) {
-    case LogLevel.NOTSET:
-      return 'NOTSET';
-      break;
-    case LogLevel.DEBUG:
-      return 'DEBUG';
-      break;
-    case LogLevel.INFO:
-      return 'INFO';
-      break;
-    case LogLevel.WARN:
-      return 'WARN';
-      break;
-    case LogLevel.ERROR:
-      return 'ERROR';
-      break;
-  }
-}
-
 interface ToString {
   toString: () => string;
 }
 
+interface ToJSON {
+  toJSON: (key?: string) => string;
+}
+
+type LogDataKey = string | number;
+
+/**
+ * Custom log data values
+ * Values can be made lazy by wrapping it as a lambda
+ */
+type LogDataValue =
+  | number
+  | string
+  | boolean
+  | null
+  | undefined
+  | ToJSON
+  | (() => LogDataValue)
+  | Array<LogDataValue>
+  | { [key: LogDataKey]: LogDataValue };
+
+/**
+ * Custom log data
+ */
+type LogData = Record<LogDataKey, LogDataValue>;
+
+/**
+ * Finalised log records
+ */
 type LogRecord = {
+  logger: Logger;
   key: string;
   date: Date;
-  msg: string;
   level: LogLevel;
-  logger: Logger;
+  msg: string | undefined;
+  data: LogData;
+  keys: () => string;
+  stack: () => string;
 };
 
 type LogFormatter = (record: LogRecord) => string;
 
-export { LogLevel, levelToString };
+export { LogLevel };
 
-export type { ToString, LogRecord, LogFormatter };
+export type {
+  ToString,
+  ToJSON,
+  LogDataKey,
+  LogDataValue,
+  LogData,
+  LogRecord,
+  LogFormatter,
+};
