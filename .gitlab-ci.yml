@@ -167,7 +167,9 @@ build:windows:
     - mkdir -Force "$CI_PROJECT_DIR/tmp"
   script:
     - .\scripts\choco-install.ps1
+    - node --version
     - refreshenv
+    - node --version
     - npm install --ignore-scripts
     - $env:Path = "$(npm bin);" + $env:Path
     - npm test -- --ci --coverage
