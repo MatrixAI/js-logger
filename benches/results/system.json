@@ -11,7 +11,7 @@
     "speed": 3.7,
     "speedMin": 2.2,
     "speedMax": 3.7,
-    "governor": "ondemand",
+    "governor": "performance",
     "cores": 16,
     "physicalCores": 8,
     "performanceCores": 8,
