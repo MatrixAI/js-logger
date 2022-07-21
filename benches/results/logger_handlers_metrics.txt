@@ -1,0 +1,11 @@
+# TYPE logger_handlers_ops gauge
+logger_handlers_ops{name="console.error"} 179080
+logger_handlers_ops{name="process.stderr"} 1044539
+
+# TYPE logger_handlers_margin gauge
+logger_handlers_margin{name="console.error"} 0.83
+logger_handlers_margin{name="process.stderr"} 7.24
+
+# TYPE logger_handlers_samples counter
+logger_handlers_samples{name="console.error"} 93
+logger_handlers_samples{name="process.stderr"} 90
