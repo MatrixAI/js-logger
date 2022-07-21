@@ -10,9 +10,9 @@ variables:
   GH_PROJECT_PATH: "MatrixAI/${CI_PROJECT_NAME}"
   GH_PROJECT_URL: "https://${GITHUB_TOKEN}@github.com/${GH_PROJECT_PATH}.git"
   # Cache .npm
-  NPM_CONFIG_CACHE: "${CI_PROJECT_DIR}/tmp/npm"
+  npm_config_cache: "${CI_PROJECT_DIR}/tmp/npm"
   # Prefer offline node module installation
-  NPM_CONFIG_PREFER_OFFLINE: "true"
+  npm_config_prefer_offline: "true"
   # Homebrew cache only used by macos runner
   HOMEBREW_CACHE: "${CI_PROJECT_DIR}/tmp/Homebrew"
 
@@ -50,7 +50,7 @@ check:lint:
   needs: []
   script:
     - >
-      nix-shell --arg ci true --run '
+      nix-shell --arg ci true --run $'
       npm run lint;
       npm run lint-shell;
       '
@@ -68,7 +68,7 @@ check:test:
   needs: []
   script:
     - >
-      nix-shell --arg ci true --run '
+      nix-shell --arg ci true --run $'
       npm test -- --ci --coverage;
       '
   artifacts:
@@ -95,7 +95,7 @@ build:merge:
     # Required for `gh pr create`
     - git remote add upstream "$GH_PROJECT_URL"
     - >
-      nix-shell --arg ci true --run '
+      nix-shell --arg ci true --run $'
       gh pr create \
         --head staging \
         --base master \
@@ -138,7 +138,7 @@ build:linux:
   needs: []
   script:
     - >
-      nix-shell --arg ci true --run '
+      nix-shell --arg ci true --run $'
       npm test -- --ci --coverage;
       npm run bench;
       '
@@ -231,7 +231,7 @@ build:prerelease:
     - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ./.npmrc
     - echo 'Publishing library prerelease'
     - >
-      nix-shell --arg ci true --run '
+      nix-shell --arg ci true --run $'
       npm publish --tag prerelease --access public;
       '
   after_script:
@@ -263,7 +263,7 @@ integration:merge:
     GIT_DEPTH: 0
   script:
     - >
-      nix-shell --arg ci true --run '
+      nix-shell --arg ci true --run $'
       printf "Pipeline Succeeded on ${CI_PIPELINE_ID} for ${CI_COMMIT_SHA}\n\n${CI_PIPELINE_URL}" \
       | gh pr comment staging \
         --body-file - \
@@ -294,7 +294,7 @@ release:distribution:
     - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ./.npmrc
     - echo 'Publishing library'
     - >
-      nix-shell --arg ci true --run '
+      nix-shell --arg ci true --run $'
       npm publish --access public;
       '
   after_script:
