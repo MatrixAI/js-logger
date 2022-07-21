@@ -39,7 +39,7 @@ async function main() {
     stderr.close((e) => (e != null ? reject(e) : resolve()));
   });
   process.stderr.write = processStderrWrite;
-  await fs.promises.rm(tmpDir, { recursive: true });
+  await fs.promises.rm(tmpDir, { recursive: true, force: true });
   return summary;
 }
 
