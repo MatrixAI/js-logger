@@ -6,6 +6,7 @@ enum LogLevel {
   INFO = 2,
   WARN = 3,
   ERROR = 4,
+  SILENT = 100,
 }
 
 interface ToString {

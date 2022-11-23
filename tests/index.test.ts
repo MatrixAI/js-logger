@@ -230,4 +230,26 @@ describe('index', () => {
     expect(JSON.parse(consoleSpy.mock.lastCall[0])).not.toHaveProperty('msg');
     consoleSpy.mockRestore();
   });
+  test('Test with silent log level', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockReturnValue();
+    const logger = new Logger('root', LogLevel.SILENT);
+    logger.debug('DEBUG MESSAGE');
+    expect(consoleSpy.mock.calls.length).toBe(0);
+    logger.info('INFO MESSAGE');
+    expect(consoleSpy.mock.calls.length).toBe(0);
+    logger.warn('WARN MESSAGE');
+    expect(consoleSpy.mock.calls.length).toBe(0);
+    logger.error('ERROR MESSAGE');
+    expect(consoleSpy.mock.calls.length).toBe(0);
+    const childLogger = logger.getChild('child');
+    childLogger.debug('DEBUG MESSAGE');
+    expect(consoleSpy.mock.calls.length).toBe(0);
+    childLogger.info('INFO MESSAGE');
+    expect(consoleSpy.mock.calls.length).toBe(0);
+    childLogger.warn('WARN MESSAGE');
+    expect(consoleSpy.mock.calls.length).toBe(0);
+    childLogger.error('ERROR MESSAGE');
+    expect(consoleSpy.mock.calls.length).toBe(0);
+    consoleSpy.mockRestore();
+  });
 });

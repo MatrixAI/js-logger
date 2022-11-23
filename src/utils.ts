@@ -8,19 +8,16 @@ function levelToString(level: LogLevel): string {
   switch (level) {
     case LogLevel.NOTSET:
       return 'NOTSET';
-      break;
     case LogLevel.DEBUG:
       return 'DEBUG';
-      break;
     case LogLevel.INFO:
       return 'INFO';
-      break;
     case LogLevel.WARN:
       return 'WARN';
-      break;
     case LogLevel.ERROR:
       return 'ERROR';
-      break;
+    case LogLevel.SILENT:
+      return 'SILENT';
   }
 }
 
