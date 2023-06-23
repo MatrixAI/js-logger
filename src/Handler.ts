@@ -1,5 +1,4 @@
 import type { LogRecord, LogFormatter } from './types';
-
 import * as formatting from './formatting';
 
 abstract class Handler {
