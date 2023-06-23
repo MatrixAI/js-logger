@@ -1,11 +1,11 @@
 # TYPE logger_filtered_ops gauge
-logger_filtered_ops{name="log level"} 164803877
-logger_filtered_ops{name="keys regex"} 166665103
+logger_filtered_ops{name="log level"} 167936103
+logger_filtered_ops{name="keys regex"} 166306609
 
 # TYPE logger_filtered_margin gauge
-logger_filtered_margin{name="log level"} 0.08
-logger_filtered_margin{name="keys regex"} 0.08
+logger_filtered_margin{name="log level"} 0.83
+logger_filtered_margin{name="keys regex"} 1.19
 
 # TYPE logger_filtered_samples counter
-logger_filtered_samples{name="log level"} 95
-logger_filtered_samples{name="keys regex"} 98
+logger_filtered_samples{name="log level"} 94
+logger_filtered_samples{name="keys regex"} 95
