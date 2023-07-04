@@ -140,6 +140,7 @@ build:linux:
     - >
       nix-shell --arg ci true --run $'
       npm test -- --ci --coverage;
+      npm run bench;
       '
   artifacts:
     when: always
@@ -149,6 +150,7 @@ build:linux:
       coverage_report:
         coverage_format: cobertura
         path: ./tmp/coverage/cobertura-coverage.xml
+      metrics: ./benches/results/metrics.txt
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   rules:
     # Runs on staging commits and ignores version commits
@@ -169,6 +171,7 @@ build:windows:
     - npm install --ignore-scripts
     - $env:Path = "$(npm root)\.bin;" + $env:Path
     - npm test -- --ci --coverage
+    - npm run bench
   artifacts:
     when: always
     reports:
@@ -177,6 +180,7 @@ build:windows:
       coverage_report:
         coverage_format: cobertura
         path: ./tmp/coverage/cobertura-coverage.xml
+      metrics: ./benches/results/metrics.txt
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   rules:
     # Runs on staging commits and ignores version commits
@@ -197,6 +201,7 @@ build:macos:
     - npm install --ignore-scripts
     - export PATH="$(npm root)/.bin:$PATH"
     - npm test -- --ci --coverage
+    - npm run bench
   artifacts:
     when: always
     reports:
@@ -205,6 +210,7 @@ build:macos:
       coverage_report:
         coverage_format: cobertura
         path: ./tmp/coverage/cobertura-coverage.xml
+      metrics: ./benches/results/metrics.txt
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   rules:
     # Runs on staging commits and ignores version commits
