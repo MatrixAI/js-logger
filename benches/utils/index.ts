@@ -1,2 +1,2 @@
-export { default as BenchHandler } from './BenchHandler';
-export * from './utils';
+export { default as BenchHandler } from './BenchHandler.js';
+export * from './utils.js';

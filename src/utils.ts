@@ -1,5 +1,5 @@
-import type { LogData } from './types';
-import { LogLevel } from './types';
+import type { LogData } from './types.js';
+import { LogLevel } from './types.js';
 
 const hasCaptureStackTrace = 'captureStackTrace' in Error;
 const hasStackTraceLimit = 'stackTraceLimit' in Error;

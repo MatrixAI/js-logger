@@ -1,9 +1,12 @@
-import os from 'os';
-import path from 'path';
-import fs from 'fs';
+import os from 'node:os';
+import path from 'node:path';
+import url from 'node:url';
+import fs from 'node:fs';
 import b from 'benny';
 import Logger, { LogLevel, StreamHandler, ConsoleErrHandler } from '@';
-import { suiteCommon } from './utils';
+import { suiteCommon } from './utils/index.js';
+
+const filePath = url.fileURLToPath(import.meta.url);
 
 async function main() {
   const msg = 'Hello World';
@@ -18,7 +21,7 @@ async function main() {
   const stderr = fs.createWriteStream(path.join(tmpDir, 'stderr'));
   process.stderr.write = stderr.write.bind(stderr);
   const summary = await b.suite(
-    path.basename(__filename, path.extname(__filename)),
+    path.basename(filePath, path.extname(filePath)),
     b.add('console.error', () => {
       const logger = new Logger('root', LogLevel.NOTSET, [
         new ConsoleErrHandler(),
@@ -43,8 +46,11 @@ async function main() {
   return summary;
 }
 
-if (require.main === module) {
-  void main();
+if (import.meta.url.startsWith('file:')) {
+  const modulePath = url.fileURLToPath(import.meta.url);
+  if (process.argv[1] === modulePath) {
+    void main();
+  }
 }
 
 export default main;

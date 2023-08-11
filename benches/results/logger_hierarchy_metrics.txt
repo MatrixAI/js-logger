@@ -1,17 +1,17 @@
 # TYPE logger_hierarchy_ops gauge
-logger_hierarchy_ops{name="1-levels"} 3480435
-logger_hierarchy_ops{name="2-levels"} 2912449
-logger_hierarchy_ops{name="3-levels"} 2462866
-logger_hierarchy_ops{name="4-level logger"} 2154524
+logger_hierarchy_ops{name="1-levels"} 5906519
+logger_hierarchy_ops{name="2-levels"} 4413562
+logger_hierarchy_ops{name="3-levels"} 3505224
+logger_hierarchy_ops{name="4-level logger"} 2920511
 
 # TYPE logger_hierarchy_margin gauge
-logger_hierarchy_margin{name="1-levels"} 0.91
-logger_hierarchy_margin{name="2-levels"} 0.68
-logger_hierarchy_margin{name="3-levels"} 0.82
-logger_hierarchy_margin{name="4-level logger"} 0.82
+logger_hierarchy_margin{name="1-levels"} 2.46
+logger_hierarchy_margin{name="2-levels"} 0.72
+logger_hierarchy_margin{name="3-levels"} 1.03
+logger_hierarchy_margin{name="4-level logger"} 0.68
 
 # TYPE logger_hierarchy_samples counter
-logger_hierarchy_samples{name="1-levels"} 96
-logger_hierarchy_samples{name="2-levels"} 94
-logger_hierarchy_samples{name="3-levels"} 92
-logger_hierarchy_samples{name="4-level logger"} 93
+logger_hierarchy_samples{name="1-levels"} 86
+logger_hierarchy_samples{name="2-levels"} 90
+logger_hierarchy_samples{name="3-levels"} 90
+logger_hierarchy_samples{name="4-level logger"} 90

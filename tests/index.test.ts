@@ -1,4 +1,4 @@
-import process from 'process';
+import process from 'node:process';
 import Logger, {
   LogLevel,
   ConsoleErrHandler,
@@ -223,11 +223,11 @@ describe('index', () => {
     ]);
     // The `msg` key is eliminated because it is `undefined` due to `JSON.stringify`
     loggerJSON.info(undefined);
-    expect(JSON.parse(consoleSpy.mock.lastCall[0])).not.toHaveProperty('msg');
+    expect(JSON.parse(consoleSpy.mock.lastCall![0])).not.toHaveProperty('msg');
     loggerJSON.info(undefined, { a: '123' });
-    expect(JSON.parse(consoleSpy.mock.lastCall[0])).not.toHaveProperty('msg');
+    expect(JSON.parse(consoleSpy.mock.lastCall![0])).not.toHaveProperty('msg');
     loggerJSON.info();
-    expect(JSON.parse(consoleSpy.mock.lastCall[0])).not.toHaveProperty('msg');
+    expect(JSON.parse(consoleSpy.mock.lastCall![0])).not.toHaveProperty('msg');
     consoleSpy.mockRestore();
   });
   test('Test with silent log level', () => {

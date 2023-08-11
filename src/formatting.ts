@@ -1,5 +1,5 @@
-import type { LogRecord, LogFormatter } from './types';
-import * as utils from './utils';
+import type { LogRecord, LogFormatter } from './types.js';
+import * as utils from './utils.js';
 
 const level = Symbol('level');
 const key = Symbol('key');
