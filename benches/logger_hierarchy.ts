@@ -1,8 +1,8 @@
 import path from 'node:path';
 import url from 'node:url';
 import b from 'benny';
-import Logger, { LogLevel, formatting } from '@';
 import { BenchHandler, suiteCommon } from './utils/index.js';
+import Logger, { LogLevel, formatting } from '#index.js';
 
 const filePath = url.fileURLToPath(import.meta.url);
 

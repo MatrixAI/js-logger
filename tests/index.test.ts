@@ -5,7 +5,7 @@ import Logger, {
   ConsoleOutHandler,
   StreamHandler,
   formatting,
-} from '@';
+} from '#index.js';
 
 describe('index', () => {
   beforeEach(() => {

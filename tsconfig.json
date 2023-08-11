@@ -17,9 +17,9 @@
     "target": "ES2022",
     "baseUrl": "./src",
     "paths": {
-      "@": ["index"],
-      "@/*": ["*"]
+      "#*": ["*"]
     },
+    "skipLibCheck": true,
     "noEmit": true
   },
   "include": [

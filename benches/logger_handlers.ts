@@ -3,8 +3,8 @@ import path from 'node:path';
 import url from 'node:url';
 import fs from 'node:fs';
 import b from 'benny';
-import Logger, { LogLevel, StreamHandler, ConsoleErrHandler } from '@';
 import { suiteCommon } from './utils/index.js';
+import Logger, { LogLevel, StreamHandler, ConsoleErrHandler } from '#index.js';
 
 const filePath = url.fileURLToPath(import.meta.url);
 

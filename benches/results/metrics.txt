@@ -1,80 +1,80 @@
 # TYPE logger_filtered_ops gauge
-logger_filtered_ops{name="log level"} 123096006
-logger_filtered_ops{name="keys regex"} 88210570
+logger_filtered_ops{name="log level"} 162982111
+logger_filtered_ops{name="keys regex"} 165489057
 
 # TYPE logger_filtered_margin gauge
-logger_filtered_margin{name="log level"} 6.82
-logger_filtered_margin{name="keys regex"} 1.55
+logger_filtered_margin{name="log level"} 1.19
+logger_filtered_margin{name="keys regex"} 0.38
 
 # TYPE logger_filtered_samples counter
-logger_filtered_samples{name="log level"} 74
-logger_filtered_samples{name="keys regex"} 81
+logger_filtered_samples{name="log level"} 94
+logger_filtered_samples{name="keys regex"} 90
 
 # TYPE logger_handlers_ops gauge
-logger_handlers_ops{name="console.error"} 169422
-logger_handlers_ops{name="process.stderr"} 1021337
+logger_handlers_ops{name="console.error"} 168917
+logger_handlers_ops{name="process.stderr"} 993981
 
 # TYPE logger_handlers_margin gauge
-logger_handlers_margin{name="console.error"} 0.99
-logger_handlers_margin{name="process.stderr"} 5.29
+logger_handlers_margin{name="console.error"} 1.52
+logger_handlers_margin{name="process.stderr"} 4.4
 
 # TYPE logger_handlers_samples counter
-logger_handlers_samples{name="console.error"} 91
-logger_handlers_samples{name="process.stderr"} 84
+logger_handlers_samples{name="console.error"} 89
+logger_handlers_samples{name="process.stderr"} 85
 
 # TYPE logger_hierarchy_ops gauge
-logger_hierarchy_ops{name="1-levels"} 5906519
-logger_hierarchy_ops{name="2-levels"} 4413562
-logger_hierarchy_ops{name="3-levels"} 3505224
-logger_hierarchy_ops{name="4-level logger"} 2920511
+logger_hierarchy_ops{name="1-levels"} 5857014
+logger_hierarchy_ops{name="2-levels"} 4359368
+logger_hierarchy_ops{name="3-levels"} 3358119
+logger_hierarchy_ops{name="4-level logger"} 2698355
 
 # TYPE logger_hierarchy_margin gauge
-logger_hierarchy_margin{name="1-levels"} 2.46
-logger_hierarchy_margin{name="2-levels"} 0.72
-logger_hierarchy_margin{name="3-levels"} 1.03
-logger_hierarchy_margin{name="4-level logger"} 0.68
+logger_hierarchy_margin{name="1-levels"} 1.04
+logger_hierarchy_margin{name="2-levels"} 0.5
+logger_hierarchy_margin{name="3-levels"} 1.32
+logger_hierarchy_margin{name="4-level logger"} 1.39
 
 # TYPE logger_hierarchy_samples counter
-logger_hierarchy_samples{name="1-levels"} 86
-logger_hierarchy_samples{name="2-levels"} 90
-logger_hierarchy_samples{name="3-levels"} 90
-logger_hierarchy_samples{name="4-level logger"} 90
+logger_hierarchy_samples{name="1-levels"} 91
+logger_hierarchy_samples{name="2-levels"} 94
+logger_hierarchy_samples{name="3-levels"} 92
+logger_hierarchy_samples{name="4-level logger"} 88
 
 # TYPE logger_structured_ops gauge
-logger_structured_ops{name="formatting default"} 524133
-logger_structured_ops{name="formatting with date"} 296892
-logger_structured_ops{name="formatting with keys"} 488508
-logger_structured_ops{name="formatting without lazy evaluation"} 1242438
+logger_structured_ops{name="formatting default"} 527476
+logger_structured_ops{name="formatting with date"} 300043
+logger_structured_ops{name="formatting with keys"} 486672
+logger_structured_ops{name="formatting without lazy evaluation"} 1297248
 
 # TYPE logger_structured_margin gauge
-logger_structured_margin{name="formatting default"} 0.92
-logger_structured_margin{name="formatting with date"} 1.3
-logger_structured_margin{name="formatting with keys"} 0.39
-logger_structured_margin{name="formatting without lazy evaluation"} 1.52
+logger_structured_margin{name="formatting default"} 0.86
+logger_structured_margin{name="formatting with date"} 0.68
+logger_structured_margin{name="formatting with keys"} 1.64
+logger_structured_margin{name="formatting without lazy evaluation"} 0.81
 
 # TYPE logger_structured_samples counter
-logger_structured_samples{name="formatting default"} 91
-logger_structured_samples{name="formatting with date"} 89
-logger_structured_samples{name="formatting with keys"} 95
-logger_structured_samples{name="formatting without lazy evaluation"} 88
+logger_structured_samples{name="formatting default"} 89
+logger_structured_samples{name="formatting with date"} 92
+logger_structured_samples{name="formatting with keys"} 86
+logger_structured_samples{name="formatting without lazy evaluation"} 90
 
 # TYPE logger_text_ops gauge
-logger_text_ops{name="formatting default"} 6308975
-logger_text_ops{name="formatting with keys path"} 4642508
-logger_text_ops{name="formatting with date"} 1418736
-logger_text_ops{name="formatting with data"} 800726
-logger_text_ops{name="formatting with stacktrace"} 901
+logger_text_ops{name="formatting default"} 6023758
+logger_text_ops{name="formatting with keys path"} 4541098
+logger_text_ops{name="formatting with date"} 1438183
+logger_text_ops{name="formatting with data"} 828844
+logger_text_ops{name="formatting with stacktrace"} 892
 
 # TYPE logger_text_margin gauge
-logger_text_margin{name="formatting default"} 0.77
-logger_text_margin{name="formatting with keys path"} 0.72
-logger_text_margin{name="formatting with date"} 1.34
-logger_text_margin{name="formatting with data"} 0.29
-logger_text_margin{name="formatting with stacktrace"} 0.98
+logger_text_margin{name="formatting default"} 0.81
+logger_text_margin{name="formatting with keys path"} 0.41
+logger_text_margin{name="formatting with date"} 1.8
+logger_text_margin{name="formatting with data"} 1.16
+logger_text_margin{name="formatting with stacktrace"} 0.58
 
 # TYPE logger_text_samples counter
 logger_text_samples{name="formatting default"} 90
-logger_text_samples{name="formatting with keys path"} 91
-logger_text_samples{name="formatting with date"} 93
-logger_text_samples{name="formatting with data"} 92
-logger_text_samples{name="formatting with stacktrace"} 92
+logger_text_samples{name="formatting with keys path"} 94
+logger_text_samples{name="formatting with date"} 90
+logger_text_samples{name="formatting with data"} 89
+logger_text_samples{name="formatting with stacktrace"} 91

@@ -1,11 +1,6 @@
 import path from 'node:path';
 import url from 'node:url';
-import { pathsToModuleNameMapper } from 'ts-jest';
 import tsconfigJSON from './tsconfig.json' assert { type: "json" };
-
-const moduleNameMapper = pathsToModuleNameMapper(tsconfigJSON.compilerOptions.paths, {
-  prefix: '<rootDir>/src/',
-});
 
 const projectPath = path.dirname(url.fileURLToPath(import.meta.url));
 
@@ -81,10 +76,6 @@ const config = {
     '<rootDir>/tests/setupAfterEnv.ts'
   ],
   extensionsToTreatAsEsm: ['.ts'],
-  moduleNameMapper: {
-    ...moduleNameMapper,
-    "^(\\.{1,2}/.*)\\.js$": "$1",
-  },
 };
 
 export default config;

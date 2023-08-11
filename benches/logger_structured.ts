@@ -1,14 +1,14 @@
-import type { LogRecord } from '@/types';
+import type { LogRecord } from '#types.js';
 import path from 'node:path';
 import url from 'node:url';
 import b from 'benny';
+import { BenchHandler, suiteCommon } from './utils/index.js';
 import Logger, {
   LogLevel,
   formatting,
   levelToString,
   evalLogDataValue,
-} from '@';
-import { BenchHandler, suiteCommon } from './utils/index.js';
+} from '#index.js';
 
 const filePath = url.fileURLToPath(import.meta.url);
 
