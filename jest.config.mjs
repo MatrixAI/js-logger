@@ -75,7 +75,7 @@ const config = {
     'jest-extended/all',
     '<rootDir>/tests/setupAfterEnv.ts'
   ],
-  extensionsToTreatAsEsm: ['.ts'],
+  extensionsToTreatAsEsm: ['.ts', '.tsx', '.mts'],
 };
 
 export default config;

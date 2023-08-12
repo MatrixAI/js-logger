@@ -29,7 +29,7 @@
     "build": "shx rm -rf ./dist && tsc -p ./tsconfig.build.json",
     "postversion": "npm install --package-lock-only --ignore-scripts --silent",
     "tsx": "tsx",
-    "test": "tsc -p ./tsconfig.build.json && jest",
+    "test": "tsc -p ./tsconfig.build.json && NODE_OPTIONS=--experimental-vm-modules jest",
     "lint": "eslint '{src,tests,scripts,benches}/**/*.{js,ts}'",
     "lintfix": "eslint '{src,tests,scripts,benches}/**/*.{js,ts}' --fix",
     "lint-shell": "find ./src ./tests ./scripts -type f -regextype posix-extended -regex '.*\\.(sh)' -exec shellcheck {} +",
