@@ -75,6 +75,9 @@ const config = {
     'jest-extended/all',
     '<rootDir>/tests/setupAfterEnv.ts'
   ],
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
   extensionsToTreatAsEsm: ['.ts', '.tsx', '.mts'],
 };
 
