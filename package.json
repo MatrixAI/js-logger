@@ -9,11 +9,17 @@
     "url": "https://github.com/MatrixAI/js-logger.git"
   },
   "type": "module",
-  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./*.js": "./dist/*.js",
-    "./handlers/*.js": "./dist/handlers/*.js"
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*.js": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    },
+    "./*": "./dist/*"
   },
   "imports": {
     "#*": "./dist/*"
