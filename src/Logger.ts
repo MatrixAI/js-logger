@@ -1,8 +1,8 @@
-import type { ToString, LogData, LogRecord, LogFormatter } from './types';
-import type Handler from './Handler';
-import { LogLevel } from './types';
-import ConsoleErrHandler from './handlers/ConsoleErrHandler';
-import * as utils from './utils';
+import type { ToString, LogData, LogRecord, LogFormatter } from './types.js';
+import type Handler from './Handler.js';
+import { LogLevel } from './types.js';
+import ConsoleErrHandler from './handlers/ConsoleErrHandler.js';
+import * as utils from './utils.js';
 
 class Logger {
   public readonly key: string;

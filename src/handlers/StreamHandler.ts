@@ -1,5 +1,5 @@
-import process from 'process';
-import Handler from '../Handler';
+import process from 'node:process';
+import Handler from '../Handler.js';
 
 class StreamHandler extends Handler {
   public emit(output: string): void {

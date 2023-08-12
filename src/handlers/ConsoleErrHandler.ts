@@ -1,4 +1,4 @@
-import Handler from '../Handler';
+import Handler from '../Handler.js';
 
 class ConsoleErrHandler extends Handler {
   public emit(output: string): void {

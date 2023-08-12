@@ -1,17 +1,17 @@
 # TYPE logger_structured_ops gauge
-logger_structured_ops{name="formatting default"} 516413
-logger_structured_ops{name="formatting with date"} 283498
-logger_structured_ops{name="formatting with keys"} 445125
-logger_structured_ops{name="formatting without lazy evaluation"} 1085804
+logger_structured_ops{name="formatting default"} 527476
+logger_structured_ops{name="formatting with date"} 300043
+logger_structured_ops{name="formatting with keys"} 486672
+logger_structured_ops{name="formatting without lazy evaluation"} 1297248
 
 # TYPE logger_structured_margin gauge
-logger_structured_margin{name="formatting default"} 0.33
-logger_structured_margin{name="formatting with date"} 0.43
-logger_structured_margin{name="formatting with keys"} 0.78
-logger_structured_margin{name="formatting without lazy evaluation"} 0.33
+logger_structured_margin{name="formatting default"} 0.86
+logger_structured_margin{name="formatting with date"} 0.68
+logger_structured_margin{name="formatting with keys"} 1.64
+logger_structured_margin{name="formatting without lazy evaluation"} 0.81
 
 # TYPE logger_structured_samples counter
 logger_structured_samples{name="formatting default"} 89
-logger_structured_samples{name="formatting with date"} 94
-logger_structured_samples{name="formatting with keys"} 87
-logger_structured_samples{name="formatting without lazy evaluation"} 93
+logger_structured_samples{name="formatting with date"} 92
+logger_structured_samples{name="formatting with keys"} 86
+logger_structured_samples{name="formatting without lazy evaluation"} 90

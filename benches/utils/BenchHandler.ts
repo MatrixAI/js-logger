@@ -1,4 +1,4 @@
-import { Handler } from '@';
+import { Handler } from '#index.js';
 
 /**
  * Custom bench handler where emission is free

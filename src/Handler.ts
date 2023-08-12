@@ -1,5 +1,5 @@
-import type { LogRecord, LogFormatter } from './types';
-import * as formatting from './formatting';
+import type { LogRecord, LogFormatter } from './types.js';
+import * as formatting from './formatting.js';
 
 abstract class Handler {
   formatter: LogFormatter;

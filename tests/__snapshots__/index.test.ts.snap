@@ -1,31 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`index Test JSON structured logging 1`] = `
-Array [
-  "{\\"level\\":\\"DEBUG\\",\\"key\\":\\"root\\",\\"msg\\":\\"DEBUG MESSAGE\\",\\"a\\":3}",
+[
+  "{"level":"DEBUG","key":"root","msg":"DEBUG MESSAGE","a":3}",
 ]
 `;
 
 exports[`index Test JSON structured logging 2`] = `
-Array [
-  "{\\"4\\":4,\\"level\\":\\"INFO\\",\\"key\\":\\"root\\",\\"msg\\":\\"INFO MESSAGE\\"}",
+[
+  "{"4":4,"level":"INFO","key":"root","msg":"INFO MESSAGE"}",
 ]
 `;
 
 exports[`index Test JSON structured logging 3`] = `
-Array [
-  "{\\"level\\":\\"WARN\\",\\"key\\":\\"root\\",\\"msg\\":\\"WARN MESSAGE\\",\\"c\\":\\"abc\\"}",
+[
+  "{"level":"WARN","key":"root","msg":"WARN MESSAGE","c":"abc"}",
 ]
 `;
 
 exports[`index Test JSON structured logging 4`] = `
-Array [
-  "{\\"level\\":\\"ERROR\\",\\"key\\":\\"root\\",\\"msg\\":\\"ERROR MESSAGE\\",\\"f\\":\\"lol\\"}",
+[
+  "{"level":"ERROR","key":"root","msg":"ERROR MESSAGE","f":"lol"}",
 ]
 `;
 
 exports[`index Test JSON structured logging 5`] = `
-Array [
-  "{\\"level\\":\\"INFO\\",\\"key\\":\\"child\\",\\"msg\\":\\"INFO MESSAGE\\",\\"a\\":{\\"b\\":{\\"c\\":{\\"d\\":4}}}}",
+[
+  "{"level":"INFO","key":"child","msg":"INFO MESSAGE","a":{"b":{"c":{"d":4}}}}",
 ]
 `;
