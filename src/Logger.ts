@@ -11,7 +11,6 @@ class Logger {
   public readonly keys: string;
   public readonly handlers: Set<Handler>;
   public readonly parent?: Logger;
-  public readonly loggers: Set<string> = new Set();
 
   constructor(
     key: string = 'root',
@@ -27,12 +26,7 @@ class Logger {
   }
 
   public getChild(key: string): Logger {
-    if (this.loggers.has(key)) {
-      throw Error('cannot have duplicate child keys');
-    }
-    const logger = new Logger(key, LogLevel.NOTSET, [], this);
-    this.loggers.add(key);
-    return logger;
+    return new Logger(key, LogLevel.NOTSET, [], this);
   }
 
   public getParent(): Logger | undefined {
