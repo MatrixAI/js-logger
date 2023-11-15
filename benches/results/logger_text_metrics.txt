@@ -1,20 +1,20 @@
 # TYPE logger_text_ops gauge
-logger_text_ops{name="formatting default"} 6023758
-logger_text_ops{name="formatting with keys path"} 4541098
-logger_text_ops{name="formatting with date"} 1438183
-logger_text_ops{name="formatting with data"} 828844
-logger_text_ops{name="formatting with stacktrace"} 892
+logger_text_ops{name="formatting default"} 19403753
+logger_text_ops{name="formatting with keys path"} 12168641
+logger_text_ops{name="formatting with date"} 1678789
+logger_text_ops{name="formatting with data"} 2081028
+logger_text_ops{name="formatting with stacktrace"} 31046
 
 # TYPE logger_text_margin gauge
-logger_text_margin{name="formatting default"} 0.81
-logger_text_margin{name="formatting with keys path"} 0.41
-logger_text_margin{name="formatting with date"} 1.8
-logger_text_margin{name="formatting with data"} 1.16
-logger_text_margin{name="formatting with stacktrace"} 0.58
+logger_text_margin{name="formatting default"} 0.56
+logger_text_margin{name="formatting with keys path"} 0.62
+logger_text_margin{name="formatting with date"} 0.25
+logger_text_margin{name="formatting with data"} 0.29
+logger_text_margin{name="formatting with stacktrace"} 0.22
 
 # TYPE logger_text_samples counter
-logger_text_samples{name="formatting default"} 90
-logger_text_samples{name="formatting with keys path"} 94
-logger_text_samples{name="formatting with date"} 90
-logger_text_samples{name="formatting with data"} 89
-logger_text_samples{name="formatting with stacktrace"} 91
+logger_text_samples{name="formatting default"} 96
+logger_text_samples{name="formatting with keys path"} 95
+logger_text_samples{name="formatting with date"} 99
+logger_text_samples{name="formatting with data"} 97
+logger_text_samples{name="formatting with stacktrace"} 99
