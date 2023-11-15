@@ -12,6 +12,9 @@ class Logger {
   public readonly handlers: Set<Handler>;
   public readonly parent?: Logger;
 
+  protected _loggers: Map<string, WeakRef<Logger>> = new Map();
+  protected loggersRegistry: FinalizationRegistry<string>;
+
   constructor(
     key: string = 'root',
     level: LogLevel = LogLevel.NOTSET,
@@ -23,10 +26,35 @@ class Logger {
     this.handlers = new Set(handlers);
     this.parent = parent;
     this.keys = parent != null ? `${parent.keys}.${key}` : key;
+    this.loggersRegistry = new FinalizationRegistry((key: string) => {
+      this._loggers.delete(key);
+    });
+  }
+
+  public get loggers(): Map<string, Logger> {
+    return new Map(
+      [...this._loggers.entries()]
+        .map(([key, loggerRef]) => {
+          const logger = loggerRef.deref();
+          if (logger != null) {
+            return [key, logger];
+          } else {
+            return undefined;
+          }
+        })
+        .filter((e) => e != null) as Array<[string, Logger]>,
+    );
   }
 
   public getChild(key: string): Logger {
-    return new Logger(key, LogLevel.NOTSET, [], this);
+    let loggerRef = this._loggers.get(key);
+    let logger = loggerRef?.deref();
+    if (logger != null) return logger;
+    logger = new Logger(key, LogLevel.NOTSET, [], this);
+    loggerRef = new WeakRef(logger);
+    this._loggers.set(key, loggerRef);
+    this.loggersRegistry.register(logger, key);
+    return logger;
   }
 
   public getParent(): Logger | undefined {

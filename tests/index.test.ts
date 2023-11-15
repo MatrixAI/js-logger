@@ -252,4 +252,10 @@ describe('index', () => {
     expect(consoleSpy.mock.calls.length).toBe(0);
     consoleSpy.mockRestore();
   });
+  test('Reusing the same child key gets you the same logger instance', () => {
+    const logger = new Logger('root');
+    const child1 = logger.getChild('child');
+    const child2 = logger.getChild('child');
+    expect(child1).toBe(child2);
+  });
 });
