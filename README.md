@@ -48,7 +48,7 @@ There's lots more options available in the source code. See the docs and see the
 
 ## Development
 
-Run `nix-shell`, and once you're inside, you can use:
+Run `nix develop`, and once you're inside, you can use:
 
 ```sh
 # install (or reinstall packages from package.json)
