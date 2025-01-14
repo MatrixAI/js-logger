@@ -1,8 +1,5 @@
 # js-logger
 
-staging:[![pipeline status](https://gitlab.com/MatrixAI/open-source/js-logger/badges/staging/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/js-logger/commits/staging)
-master:[![pipeline status](https://gitlab.com/MatrixAI/open-source/js-logger/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/js-logger/commits/master)
-
 This library provides a JavaScript/TypeScript logger inspired by Python's logger.
 
 * Simple logging with default handlers supporting `console.log`, `console.error`, and `process.stderr`.
