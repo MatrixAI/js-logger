@@ -1,0 +1,143 @@
+[
+  {
+    "spanId": "span-1739940930333-7m6gy",
+    "name": "User Request",
+    "startTime": 1739940930333,
+    "endTime": 1739940930336,
+    "parentSpanId": null,
+    "isCompleted": true,
+    "children": [
+      {
+        "spanId": "span-1739940930336-f00p2",
+        "name": "Order Processing",
+        "startTime": 1739940930336,
+        "endTime": 1739940930336,
+        "parentSpanId": "span-1739940930333-7m6gy",
+        "isCompleted": true,
+        "children": [
+          {
+            "spanId": "span-1739940930336-9b868",
+            "name": "Payment Processing",
+            "startTime": 1739940930336,
+            "endTime": 1739940930337,
+            "parentSpanId": "span-1739940930336-f00p2",
+            "isCompleted": true,
+            "children": [
+              {
+                "spanId": "span-1739940933340-k80y3",
+                "name": "Payment Completed",
+                "startTime": 1739940933340,
+                "endTime": 1739940933341,
+                "parentSpanId": "span-1739940930336-9b868",
+                "isCompleted": true,
+                "children": []
+              }
+            ]
+          },
+          {
+            "spanId": "span-1739940935340-zcywd",
+            "name": "Order Completed",
+            "startTime": 1739940935340,
+            "endTime": 1739940935341,
+            "parentSpanId": "span-1739940930336-f00p2",
+            "isCompleted": true,
+            "children": []
+          }
+        ]
+      },
+      {
+        "spanId": "span-1739940937338-xgx5l",
+        "name": "User Request Completed",
+        "startTime": 1739940937338,
+        "endTime": 1739940937340,
+        "parentSpanId": "span-1739940930333-7m6gy",
+        "isCompleted": true,
+        "children": []
+      }
+    ]
+  },
+  {
+    "spanId": "span-1739940930336-f00p2",
+    "name": "Order Processing",
+    "startTime": 1739940930336,
+    "endTime": 1739940930336,
+    "parentSpanId": "span-1739940930333-7m6gy",
+    "isCompleted": true,
+    "children": [
+      {
+        "spanId": "span-1739940930336-9b868",
+        "name": "Payment Processing",
+        "startTime": 1739940930336,
+        "endTime": 1739940930337,
+        "parentSpanId": "span-1739940930336-f00p2",
+        "isCompleted": true,
+        "children": [
+          {
+            "spanId": "span-1739940933340-k80y3",
+            "name": "Payment Completed",
+            "startTime": 1739940933340,
+            "endTime": 1739940933341,
+            "parentSpanId": "span-1739940930336-9b868",
+            "isCompleted": true,
+            "children": []
+          }
+        ]
+      },
+      {
+        "spanId": "span-1739940935340-zcywd",
+        "name": "Order Completed",
+        "startTime": 1739940935340,
+        "endTime": 1739940935341,
+        "parentSpanId": "span-1739940930336-f00p2",
+        "isCompleted": true,
+        "children": []
+      }
+    ]
+  },
+  {
+    "spanId": "span-1739940930336-9b868",
+    "name": "Payment Processing",
+    "startTime": 1739940930336,
+    "endTime": 1739940930337,
+    "parentSpanId": "span-1739940930336-f00p2",
+    "isCompleted": true,
+    "children": [
+      {
+        "spanId": "span-1739940933340-k80y3",
+        "name": "Payment Completed",
+        "startTime": 1739940933340,
+        "endTime": 1739940933341,
+        "parentSpanId": "span-1739940930336-9b868",
+        "isCompleted": true,
+        "children": []
+      }
+    ]
+  },
+  {
+    "spanId": "span-1739940933340-k80y3",
+    "name": "Payment Completed",
+    "startTime": 1739940933340,
+    "endTime": 1739940933341,
+    "parentSpanId": "span-1739940930336-9b868",
+    "isCompleted": true,
+    "children": []
+  },
+  {
+    "spanId": "span-1739940935340-zcywd",
+    "name": "Order Completed",
+    "startTime": 1739940935340,
+    "endTime": 1739940935341,
+    "parentSpanId": "span-1739940930336-f00p2",
+    "isCompleted": true,
+    "children": []
+  },
+  {
+    "spanId": "span-1739940937338-xgx5l",
+    "name": "User Request Completed",
+    "startTime": 1739940937338,
+    "endTime": 1739940937340,
+    "parentSpanId": "span-1739940930333-7m6gy",
+    "isCompleted": true,
+    "children": []
+  }
+]

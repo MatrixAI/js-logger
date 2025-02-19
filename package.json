@@ -55,8 +55,12 @@
     "prettier": "^3.0.0",
     "shx": "^0.3.4",
     "systeminformation": "^5.18.5",
+    "ts-node": "^10.9.2",
     "tsx": "^3.12.7",
     "typedoc": "^0.24.8",
     "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "ink": "^5.1.0"
   }
 }

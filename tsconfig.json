@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react-jsx",
     "outDir": "./dist",
     "tsBuildInfoFile": "./dist/tsbuildinfo",
     "incremental": true,
@@ -13,7 +14,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "moduleResolution": "NodeNext",
-    "module": "ESNext",
+    "module": "NodeNext",
     "target": "ES2022",
     "baseUrl": "./src",
     "paths": {
