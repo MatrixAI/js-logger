@@ -3,7 +3,7 @@ import type Handler from './Handler.js';
 import { LogLevel } from './types.js';
 import ConsoleErrHandler from './handlers/ConsoleErrHandler.js';
 import * as utils from './utils.js';
-import { openSpan, closeSpan } from "./tracing/tracingManager.js";
+import { openSpan, closeSpan } from "./lib/tracingManager.js";
 
 
 class Logger {

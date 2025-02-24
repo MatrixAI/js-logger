@@ -1,4 +1,4 @@
-import { Span } from "./span.js";
+import { Span } from "../lib/span.js";
 import fs from "fs";
 
 const SPAN_FILE = "spans.json";
@@ -52,16 +52,59 @@ export function closeSpan(spanId: string): Span | null {
  * Retrieves all active spans.
  * @returns An array of active spans.
  */
+// export function getActiveSpans(): Span[] {
+//     console.log("Checking Active Spans at Time:", Date.now());
+//     console.log("Stored Active Spans:", Object.values(activeSpans)); 
+//     return Object.values(activeSpans);
+// }
+
 export function getActiveSpans(): Span[] {
-    console.log("📢 Checking Active Spans at Time:", Date.now());
-    console.log("📢 Stored Active Spans:", Object.values(activeSpans)); 
+    console.log("Checking Active Spans at Time:", Date.now());
+
+    if (fs.existsSync(SPAN_FILE)) {
+        const fileData = fs.readFileSync(SPAN_FILE, "utf8");
+        const rawSpans = JSON.parse(fileData);
+
+        function reconstructSpan(spanData: any): Span {
+
+            delete spanData.isCompleted;
+
+            const reconstructedSpan = Object.assign(
+                new Span(spanData.name, spanData.parentSpanId),
+                spanData
+            );
+            reconstructedSpan.children = (spanData.children || []).map(reconstructSpan);
+            return reconstructedSpan;
+        }
+
+        return rawSpans.map(reconstructSpan);
+    }
+
+    console.log("Stored Active Spans:", Object.values(activeSpans));
     return Object.values(activeSpans);
 }
+
+
 
 /**
  * Retrieves the entire trace structure as JSON.
  * @returns JSON representation of all spans.
  */
 export function getTraceJSON(): string {
-    return JSON.stringify(getActiveSpans().map(span => span.toJSON()), null, 2);
+    const activeSpans = getActiveSpans();
+
+    console.log("Debug: Active Spans Before JSON Conversion:", activeSpans);
+
+    return JSON.stringify(
+        activeSpans.map(span => span.toJSON()), // ✅ `toJSON()` will now work correctly
+        null,
+        2
+    );
 }
+
+
+
+
+
+
+
