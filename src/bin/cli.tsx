@@ -1,81 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { render, Box, Text } from 'ink';
-import { getActiveSpans } from "../lib/tracingManager.js";
-import fs from "fs";
-import { Span } from "../lib/span.js";
+import fs from 'fs';
+import SpanTree from './SpanTree.js';
+import { Span } from '../lib/span.js';
+
+const SPAN_FILE = 'spans.json';
 
 
-const SPAN_FILE = "spans.json"; 
+const sampleArgIndex = process.argv.indexOf("--sample");
+const sampleMode =
+  sampleArgIndex !== -1 && process.argv.length > sampleArgIndex + 1
+    ? process.argv[sampleArgIndex + 1].trim() === "logical"
+      ? "logical"
+      : "time"
+    : "time"; 
 
-// Function to fetch active spans
-const fetchSpanData = () => {
-    if (!fs.existsSync(SPAN_FILE)) return []; // If file doesn't exist, return empty
-    const fileData = fs.readFileSync(SPAN_FILE, "utf8");
-    
-    // Explicitly type `flatSpans`
-    const flatSpans: Span[] = JSON.parse(fileData);
-
-    // Build a map of spans by ID
-    const spanMap = new Map<string, Span>();
-    flatSpans.forEach(span => {
-        span.children = []; // Initialize empty children array
-        spanMap.set(span.spanId, span);
-    });
-
-    const rootSpans: Span[] = [];
-
-    // Assign children to their respective parent spans
-    flatSpans.forEach(span => {
-        if (span.parentSpanId && spanMap.has(span.parentSpanId)) {
-            spanMap.get(span.parentSpanId)?.children.push(span);
-        } else {
-            rootSpans.push(span);
-        }
-    });
-
-    return rootSpans;
-};
+console.log(`Received CLI arguments: ${process.argv.join(" ")}`);
+console.log(`Running in ${sampleMode} mode`);
 
 
+function loadSpans(): Span[] {
+  if (!fs.existsSync(SPAN_FILE)) return [];
+  return JSON.parse(fs.readFileSync(SPAN_FILE, 'utf8'));
+}
 
-/**
- * Recursively renders spans in a hierarchical structure.
- */
-const SpanTree = ({ spans, depth = 0 }) => {
-    return spans.map(span => (
-        <Box key={span.spanId} flexDirection="column" paddingLeft={depth}>
-            {/* Render children spans first */}
-            {span.children.length > 0 && <SpanTree spans={span.children} depth={depth + 2} />}
-            {/* Render the parent span after all children */}
-            <Text color={span.endTime ? "gray" : "green"}>
-                {span.endTime ? `[✓ Completed]` : `[Running]`} {span.name}
-            </Text>
-        </Box>
-    ));
-};
-
-
-/**
- * Main React-Ink CLI component.
- */
 const App = () => {
-    const [spans, setSpans] = useState([]);
+  const [spans, setSpans] = useState<Span[]>([]);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setSpans([...fetchSpanData()]);
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-    
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSpans(loadSpans());
+    }, 1000);
 
-    return (
-        <Box flexDirection="column" paddingLeft={2}>
-            <Text color="cyan">🚀 Real-Time Span Visualization:</Text>
-            <SpanTree spans={spans} />
-        </Box>
-    );
+    const handleExit = () => {
+      console.log("Stopping CLI...");
+      clearInterval(id);
+      process.exit(0);
+    };
+
+    process.on("SIGINT", handleExit);
+    process.on("SIGTERM", handleExit);
+
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <Box flexDirection="column">
+      <Text color="cyan">Real-Time Concurrency Timeline ({sampleMode}-based)</Text>
+      <Box height={1} />
+      {spans.length > 0 ? (
+        <SpanTree spans={spans} sampleMode={sampleMode} />
+      ) : (
+        <Text>No spans available</Text>
+      )}
+    </Box>
+  );
 };
 
-// Start the CLI application
 render(<App />);

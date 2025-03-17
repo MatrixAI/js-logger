@@ -32,7 +32,7 @@ export class Span {
             endTime: this.endTime,
             parentSpanId: this.parentSpanId,
             isCompleted: this.isCompleted(),
-            children: this.children.map(child => child.toJSON()) // Serialize children
+            children: this.children.map(child => child.toJSON())
         };
     }
 }
