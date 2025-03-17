@@ -15,27 +15,46 @@ const sortSpans = (spans: Span[], mode: string): Span[] => {
   if (mode === "logical") {
     const spanMap = new Map<string, Span>();
 
-    // Convert objects to Span instances
+    // Step 1: Convert raw objects into Span instances
     spans.forEach(span => {
-      const newSpan = Object.assign(new Span(span.name, span.parentSpanId), span);
-      newSpan.children = [];
-      spanMap.set(span.spanId, newSpan);
-    });
-
-    const rootSpans: Span[] = [];
-    spans.forEach(span => {
-      if (span.parentSpanId && spanMap.has(span.parentSpanId)) {
-        spanMap.get(span.parentSpanId)!.children.push(spanMap.get(span.spanId)!);
-      } else {
-        rootSpans.push(spanMap.get(span.spanId)!);
+      if (!spanMap.has(span.spanId)) {
+        const newSpan = Object.assign(new Span(span.name, span.parentSpanId), span);
+        newSpan.children = [];
+        spanMap.set(span.spanId, newSpan);
       }
     });
 
-    return rootSpans;
+    const rootSpans: Span[] = [];
+
+    // Step 2: Link children correctly and prevent duplicates
+    spans.forEach(span => {
+      if (span.parentSpanId && spanMap.has(span.parentSpanId)) {
+        const parent = spanMap.get(span.parentSpanId);
+        const child = spanMap.get(span.spanId);
+        if (parent && child && !parent.children.includes(child)) {
+          parent.children.push(child); // ✅ Only push unique children
+        }
+      }
+    });
+
+    // Step 3: Collect only true root spans
+    spans.forEach(span => {
+      if (!span.parentSpanId) {
+        const rootSpan = spanMap.get(span.spanId);
+        if (rootSpan && !rootSpans.includes(rootSpan)) {
+          rootSpans.push(rootSpan);
+        }
+      }
+    });
+
+    return rootSpans; // ✅ Only root spans are returned, no duplicates
   } else {
+    // ✅ Sort spans by time for time-based mode
     return spans.sort((a, b) => a.startTime - b.startTime);
   }
 };
+
+
 
 /**
  * **Recursive Renderer**

@@ -6,8 +6,18 @@ import { Span } from '../lib/span.js';
 
 const SPAN_FILE = 'spans.json';
 
-// Read CLI argument for sampling mode
-const sampleMode = process.argv.includes("--sample logical") ? "logical" : "time";
+
+const sampleArgIndex = process.argv.indexOf("--sample");
+const sampleMode =
+  sampleArgIndex !== -1 && process.argv.length > sampleArgIndex + 1
+    ? process.argv[sampleArgIndex + 1].trim() === "logical"
+      ? "logical"
+      : "time"
+    : "time"; 
+
+console.log(`Received CLI arguments: ${process.argv.join(" ")}`);
+console.log(`Running in ${sampleMode} mode`);
+
 
 function loadSpans(): Span[] {
   if (!fs.existsSync(SPAN_FILE)) return [];
@@ -22,7 +32,6 @@ const App = () => {
       setSpans(loadSpans());
     }, 1000);
 
-    // ✅ Handle process termination to clean up interval
     const handleExit = () => {
       console.log("Stopping CLI...");
       clearInterval(id);
