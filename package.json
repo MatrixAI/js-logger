@@ -20,6 +20,11 @@
     "docs": "shx rm -rf ./docs && typedoc --gitRevision master --tsconfig ./tsconfig.build.json --out ./docs src"
   },
   "dependencies": {
-    "ink": "^5.1.0"
+    "ink": "^5.1.0",
+    "typescript": "^5.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3"
   }
 }

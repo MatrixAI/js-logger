@@ -1,142 +1,56 @@
 [
   {
-    "spanId": "span-1740361121687-afa3r",
-    "name": "User Request",
-    "startTime": 1740361121687,
-    "endTime": 1740361121688,
+    "spanId": "span-1740997147711-c4j4n",
+    "name": "Root Span",
+    "startTime": 1740997147711,
+    "endTime": 1740997155715,
     "parentSpanId": null,
     "isCompleted": true,
     "children": [
       {
-        "spanId": "span-1740361121689-eim4b",
-        "name": "Order Processing",
-        "startTime": 1740361121689,
-        "endTime": 1740361121689,
-        "parentSpanId": "span-1740361121687-afa3r",
+        "spanId": "span-1740997148715-wle8c",
+        "name": "Parent span ends earlier",
+        "startTime": 1740997148715,
+        "endTime": 1740997150717,
+        "parentSpanId": "span-1740997147711-c4j4n",
         "isCompleted": true,
-        "children": [
-          {
-            "spanId": "span-1740361121689-hh2n7",
-            "name": "Payment Processing",
-            "startTime": 1740361121689,
-            "endTime": 1740361121689,
-            "parentSpanId": "span-1740361121689-eim4b",
-            "isCompleted": true,
-            "children": [
-              {
-                "spanId": "span-1740361124693-xz0na",
-                "name": "Payment Completed",
-                "startTime": 1740361124693,
-                "endTime": 1740361124694,
-                "parentSpanId": "span-1740361121689-hh2n7",
-                "isCompleted": true,
-                "children": []
-              }
-            ]
-          },
-          {
-            "spanId": "span-1740361126691-0xa25",
-            "name": "Order Completed",
-            "startTime": 1740361126691,
-            "endTime": 1740361126693,
-            "parentSpanId": "span-1740361121689-eim4b",
-            "isCompleted": true,
-            "children": []
-          }
-        ]
+        "children": []
       },
       {
-        "spanId": "span-1740361128691-qftpd",
-        "name": "User Request Completed",
-        "startTime": 1740361128691,
-        "endTime": 1740361128693,
-        "parentSpanId": "span-1740361121687-afa3r",
+        "spanId": "span-1740997149716-2u7wc",
+        "name": "Forking",
+        "startTime": 1740997149716,
+        "endTime": 1740997153718,
+        "parentSpanId": "span-1740997147711-c4j4n",
         "isCompleted": true,
         "children": []
       }
     ]
   },
   {
-    "spanId": "span-1740361121689-eim4b",
-    "name": "Order Processing",
-    "startTime": 1740361121689,
-    "endTime": 1740361121689,
-    "parentSpanId": "span-1740361121687-afa3r",
-    "isCompleted": true,
-    "children": [
-      {
-        "spanId": "span-1740361121689-hh2n7",
-        "name": "Payment Processing",
-        "startTime": 1740361121689,
-        "endTime": 1740361121689,
-        "parentSpanId": "span-1740361121689-eim4b",
-        "isCompleted": true,
-        "children": [
-          {
-            "spanId": "span-1740361124693-xz0na",
-            "name": "Payment Completed",
-            "startTime": 1740361124693,
-            "endTime": 1740361124694,
-            "parentSpanId": "span-1740361121689-hh2n7",
-            "isCompleted": true,
-            "children": []
-          }
-        ]
-      },
-      {
-        "spanId": "span-1740361126691-0xa25",
-        "name": "Order Completed",
-        "startTime": 1740361126691,
-        "endTime": 1740361126693,
-        "parentSpanId": "span-1740361121689-eim4b",
-        "isCompleted": true,
-        "children": []
-      }
-    ]
-  },
-  {
-    "spanId": "span-1740361121689-hh2n7",
-    "name": "Payment Processing",
-    "startTime": 1740361121689,
-    "endTime": 1740361121689,
-    "parentSpanId": "span-1740361121689-eim4b",
-    "isCompleted": true,
-    "children": [
-      {
-        "spanId": "span-1740361124693-xz0na",
-        "name": "Payment Completed",
-        "startTime": 1740361124693,
-        "endTime": 1740361124694,
-        "parentSpanId": "span-1740361121689-hh2n7",
-        "isCompleted": true,
-        "children": []
-      }
-    ]
-  },
-  {
-    "spanId": "span-1740361124693-xz0na",
-    "name": "Payment Completed",
-    "startTime": 1740361124693,
-    "endTime": 1740361124694,
-    "parentSpanId": "span-1740361121689-hh2n7",
+    "spanId": "span-1740997148715-wle8c",
+    "name": "Parent span ends earlier",
+    "startTime": 1740997148715,
+    "endTime": 1740997150717,
+    "parentSpanId": "span-1740997147711-c4j4n",
     "isCompleted": true,
     "children": []
   },
   {
-    "spanId": "span-1740361126691-0xa25",
-    "name": "Order Completed",
-    "startTime": 1740361126691,
-    "endTime": 1740361126693,
-    "parentSpanId": "span-1740361121689-eim4b",
+    "spanId": "span-1740997149716-2u7wc",
+    "name": "Forking",
+    "startTime": 1740997149716,
+    "endTime": 1740997153718,
+    "parentSpanId": "span-1740997147711-c4j4n",
     "isCompleted": true,
     "children": []
   },
   {
-    "spanId": "span-1740361128691-qftpd",
-    "name": "User Request Completed",
-    "startTime": 1740361128691,
-    "endTime": 1740361128693,
-    "parentSpanId": "span-1740361121687-afa3r",
+    "spanId": "span-1740997150715-7a1qz",
+    "name": "Orphan",
+    "startTime": 1740997150715,
+    "endTime": 1740997154717,
+    "parentSpanId": null,
     "isCompleted": true,
     "children": []
   }

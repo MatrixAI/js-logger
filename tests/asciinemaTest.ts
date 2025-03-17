@@ -1,15 +1,44 @@
-import Logger from "../src/Logger.js";
+import { openSpan, closeSpan } from '../src/lib/tracingManager.js';
 
-const logger = new Logger();
+// 1) Root Span: starts at t=0, ends at t=8000ms
+const rootSpanId = openSpan('Root Span');
+console.log('Opened Root Span:', rootSpanId);
 
-console.log("\nStarting Tracing & CLI Test...\n");
+// 2) Start a child “Parent span ends earlier” at t=1000ms, end at t=3000ms
+setTimeout(() => {
+  const earlyChildId = openSpan('Parent span ends earlier', rootSpanId);
+  console.log('Opened early child:', earlyChildId);
 
-// Now correctly assigning the returned spanId
-const rootSpan: string = logger.info("User Request");  
-const span1: string = logger.info("Order Processing", undefined, undefined, rootSpan);
-const span2: string = logger.info("Payment Processing", undefined, undefined, span1); 
+  setTimeout(() => {
+    closeSpan(earlyChildId);
+    console.log('Closed early child:', earlyChildId);
+  }, 2000);
+}, 1000);
 
-// Simulate Completion at Different Intervals
-setTimeout(() => logger.info("Payment Completed", undefined, undefined, span2), 3000);
-setTimeout(() => logger.info("Order Completed", undefined, undefined, span1), 5000);
-setTimeout(() => logger.info("User Request Completed", undefined, undefined, rootSpan), 7000);
+// 3) Another child “Forking” at t=2000ms, ends at t=6000ms
+setTimeout(() => {
+  const forkingId = openSpan('Forking', rootSpanId);
+  console.log('Opened Forking child:', forkingId);
+
+  setTimeout(() => {
+    closeSpan(forkingId);
+    console.log('Closed Forking child:', forkingId);
+  }, 4000);
+}, 2000);
+
+// 4) An “Orphan” (no parent) at t=3000ms, ends at t=7000ms
+setTimeout(() => {
+  const orphanId = openSpan('Orphan', null);
+  console.log('Opened Orphan:', orphanId);
+
+  setTimeout(() => {
+    closeSpan(orphanId);
+    console.log('Closed Orphan:', orphanId);
+  }, 4000);
+}, 3000);
+
+// Finally, close root at t=8000ms
+setTimeout(() => {
+  closeSpan(rootSpanId);
+  console.log('Closed Root Span:', rootSpanId);
+}, 8000);
