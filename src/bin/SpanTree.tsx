@@ -15,10 +15,11 @@ const sortSpans = (spans: Span[], mode: string): Span[] => {
   if (mode === "logical") {
     const spanMap = new Map<string, Span>();
 
-    // Step 1: Convert raw objects into Span instances
+    // Step 1: Convert raw objects to Span instances
     spans.forEach(span => {
       if (!spanMap.has(span.spanId)) {
-        const newSpan = Object.assign(new Span(span.name, span.parentSpanId), span);
+        const newSpan = new Span(span.name, span.parentSpanId);
+        Object.assign(newSpan, span);
         newSpan.children = [];
         spanMap.set(span.spanId, newSpan);
       }
@@ -26,34 +27,31 @@ const sortSpans = (spans: Span[], mode: string): Span[] => {
 
     const rootSpans: Span[] = [];
 
-    // Step 2: Link children correctly and prevent duplicates
+    // Step 2: Link children to parents
     spans.forEach(span => {
       if (span.parentSpanId && spanMap.has(span.parentSpanId)) {
-        const parent = spanMap.get(span.parentSpanId);
-        const child = spanMap.get(span.spanId);
-        if (parent && child && !parent.children.includes(child)) {
-          parent.children.push(child); // ✅ Only push unique children
-        }
+        spanMap.get(span.parentSpanId)!.children.push(spanMap.get(span.spanId)!);
       }
     });
 
-    // Step 3: Collect only true root spans
+    // Step 3: Collect only true root spans (avoiding duplicates)
     spans.forEach(span => {
       if (!span.parentSpanId) {
         const rootSpan = spanMap.get(span.spanId);
-        if (rootSpan && !rootSpans.includes(rootSpan)) {
+        if (rootSpan) {
           rootSpans.push(rootSpan);
         }
       }
     });
 
-    return rootSpans; // ✅ Only root spans are returned, no duplicates
+    return rootSpans;
   } else {
-    // ✅ Sort spans by time for time-based mode
-    return spans.sort((a, b) => a.startTime - b.startTime);
+    // ✅ Time Mode: Flatten spans and sort only by `startTime`
+    return spans
+      .map(span => new Span(span.name, span.parentSpanId)) // Convert to Span instances
+      .sort((a, b) => a.startTime - b.startTime); // Sort purely by start time
   }
 };
-
 
 
 /**
