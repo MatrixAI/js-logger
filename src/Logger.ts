@@ -178,13 +178,11 @@ class Logger {
     // Filter on level before making a record
     if (level < this.getEffectiveLevel()) return "";
 
-    // 🌟 Open a span, linking it to a parent if provided
     const spanId = openSpan(msg?.toString() || 'Log Event', parentSpanId);
 
     const record = this.makeRecord(msg, data, level);
     this.callHandlers(record, level, format);
 
-    // 🌟 Close the span
     closeSpan(spanId);
     return spanId
 }

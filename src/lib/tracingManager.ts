@@ -3,7 +3,6 @@ import fs from "fs";
 
 const SPAN_FILE = "spans.json";
 
-// Store all active spans in a dictionary
 const activeSpans: Record<string, Span> = {};
 
 /**
@@ -52,11 +51,6 @@ export function closeSpan(spanId: string): Span | null {
  * Retrieves all active spans.
  * @returns An array of active spans.
  */
-// export function getActiveSpans(): Span[] {
-//     console.log("Checking Active Spans at Time:", Date.now());
-//     console.log("Stored Active Spans:", Object.values(activeSpans)); 
-//     return Object.values(activeSpans);
-// }
 
 export function getActiveSpans(): Span[] {
     console.log("Checking Active Spans at Time:", Date.now());
@@ -96,7 +90,7 @@ export function getTraceJSON(): string {
     console.log("Debug: Active Spans Before JSON Conversion:", activeSpans);
 
     return JSON.stringify(
-        activeSpans.map(span => span.toJSON()), // ✅ `toJSON()` will now work correctly
+        activeSpans.map(span => span.toJSON()),
         null,
         2
     );

@@ -46,7 +46,6 @@ const sortSpans = (spans: Span[], mode: string): Span[] => {
 
     return rootSpans;
   } else {
-    // ✅ Time Mode: Flatten spans and sort only by `startTime`
     return spans
       .map(span => new Span(span.name, span.parentSpanId)) // Convert to Span instances
       .sort((a, b) => a.startTime - b.startTime); // Sort purely by start time
