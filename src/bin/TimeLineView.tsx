@@ -1,13 +1,13 @@
-// TimelineView.tsx
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import { Box, Text } from 'ink';
 
 interface Span {
   spanId: string;
   name: string;
-  parentSpanId: string | null;
+  parentSpanId: string | undefined;
   startTime: number;
-  endTime: number | null;
+  endTime: number | undefined;
 }
 
 // We make each row = 1000 ms
@@ -17,7 +17,7 @@ function timeToRow(timeMs: number, baseTimeMs: number) {
   return Math.floor((timeMs - baseTimeMs) / TIME_STEP_MS);
 }
 
-function assignLanes(spans: Span[]): Map<string, number> {
+function assignLanes(spans: Array<Span>): Map<string, number> {
   // Sort spans by startTime ascending
   const sorted = [...spans].sort((a, b) => a.startTime - b.startTime);
   const laneMap = new Map<string, number>();
@@ -37,7 +37,7 @@ function assignLanes(spans: Span[]): Map<string, number> {
     }
     laneMap.set(span.spanId, assignedLane);
 
-    const realEnd = span.endTime ?? (span.startTime + 3000);
+    const realEnd = span.endTime ?? span.startTime + 3000;
     laneEndTime[assignedLane] = Math.max(laneEndTime[assignedLane], realEnd);
   }
   return laneMap;
@@ -49,17 +49,17 @@ const TimelineView: FC<{ spans: Span[] }> = ({ spans }) => {
   }
 
   const laneMap = assignLanes(spans);
-  let earliest = Math.min(...spans.map(s => s.startTime));
-  let latest = Math.max(...spans.map(s => s.endTime ?? (s.startTime + 3000)));
+  const earliest =
+    Math.floor(Math.min(...spans.map((s) => s.startTime)) / TIME_STEP_MS) *
+    TIME_STEP_MS;
 
-  // Round earliest down
-  earliest = Math.floor(earliest / TIME_STEP_MS) * TIME_STEP_MS;
+  const latest = Math.max(...spans.map((s) => s.endTime ?? s.startTime + 3000));
   const maxLane = Math.max(...laneMap.values());
   const rowCount = 1 + timeToRow(latest, earliest);
 
   // Initialize a 2D grid: rowCount rows x (maxLane+1) lanes
-  const grid: string[][] = Array.from({ length: rowCount }, () =>
-    Array(maxLane + 1).fill('   ')
+  const grid: Array<Array<string>> = Array.from({ length: rowCount }, () =>
+    Array(maxLane + 1).fill('   '),
   );
 
   // Fill each lane with vertical bars and optional slash
@@ -74,14 +74,20 @@ const TimelineView: FC<{ spans: Span[] }> = ({ spans }) => {
     }
 
     // Insert the span name at the start row
-    grid[startRow][lane] = grid[startRow][lane].replace(' | ', ` | (${span.name})`);
+    grid[startRow][lane] = grid[startRow][lane].replace(
+      ' | ',
+      ` | (${span.name})`,
+    );
 
     // If parent ended earlier, place a slash
     if (span.parentSpanId) {
-      const parent = spans.find(s => s.spanId === span.parentSpanId);
+      const parent = spans.find((s) => s.spanId === span.parentSpanId);
       if (parent) {
         const parentLane = laneMap.get(parent.spanId)!;
-        const parentEnd = timeToRow(parent.endTime ?? parent.startTime, earliest);
+        const parentEnd = timeToRow(
+          parent.endTime ?? parent.startTime,
+          earliest,
+        );
 
         if (parentLane !== lane || parentEnd < endRow) {
           if (parentLane < lane) {
@@ -94,7 +100,7 @@ const TimelineView: FC<{ spans: Span[] }> = ({ spans }) => {
     }
   }
 
-  const lines = grid.map(cols => cols.join(''));
+  const lines = grid.map((cols) => cols.join(''));
 
   return (
     <Box flexDirection="column">
@@ -104,8 +110,7 @@ const TimelineView: FC<{ spans: Span[] }> = ({ spans }) => {
         </Box>
       ))}
     </Box>
-  );  
+  );
 };
 
 export default TimelineView;
-

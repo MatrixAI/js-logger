@@ -1,11 +1,12 @@
 import process from 'node:process';
-import Logger, {
+import Logger from '../dist/index.js';
+import {
   LogLevel,
   ConsoleErrHandler,
   ConsoleOutHandler,
   StreamHandler,
   formatting,
-} from '#index.js';
+} from '../dist/index.js';
 
 describe('index', () => {
   beforeEach(() => {

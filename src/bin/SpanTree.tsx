@@ -1,22 +1,23 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import { Box, Text } from 'ink';
-import { Span } from "../lib/span.js";
+import Span from '../lib/Span.js';
 
 // Props for handling both root and child spans
 interface SpanTreeProps {
-  spans: Span[];
-  sampleMode: string;
+  spans: Array<Span>;
+  mode: 'logical' | 'time';
 }
 
 /**
  * Sort spans based on the selected sampling mode.
  */
 const sortSpans = (spans: Span[], mode: string): Span[] => {
-  if (mode === "logical") {
+  if (mode === 'logical') {
     const spanMap = new Map<string, Span>();
 
     // Step 1: Convert raw objects to Span instances
-    spans.forEach(span => {
+    spans.forEach((span) => {
       if (!spanMap.has(span.spanId)) {
         const newSpan = new Span(span.name, span.parentSpanId);
         Object.assign(newSpan, span);
@@ -25,17 +26,19 @@ const sortSpans = (spans: Span[], mode: string): Span[] => {
       }
     });
 
-    const rootSpans: Span[] = [];
+    const rootSpans: Array<Span> = [];
 
     // Step 2: Link children to parents
-    spans.forEach(span => {
+    spans.forEach((span) => {
       if (span.parentSpanId && spanMap.has(span.parentSpanId)) {
-        spanMap.get(span.parentSpanId)!.children.push(spanMap.get(span.spanId)!);
+        spanMap
+          .get(span.parentSpanId)!
+          .children.push(spanMap.get(span.spanId)!);
       }
     });
 
     // Step 3: Collect only true root spans (avoiding duplicates)
-    spans.forEach(span => {
+    spans.forEach((span) => {
       if (!span.parentSpanId) {
         const rootSpan = spanMap.get(span.spanId);
         if (rootSpan) {
@@ -47,23 +50,22 @@ const sortSpans = (spans: Span[], mode: string): Span[] => {
     return rootSpans;
   } else {
     return spans
-      .map(span => new Span(span.name, span.parentSpanId)) // Convert to Span instances
-      .sort((a, b) => a.startTime - b.startTime); // Sort purely by start time
+      .map((span) => new Span(span.name, span.parentSpanId))
+      .sort((a, b) => a.startTime - b.startTime);
   }
 };
-
 
 /**
  * **Recursive Renderer**
  * - Uses box-drawing characters (│ ├ └) for structured layout.
  */
-const RecursiveSpanTree: FC<{ span: Span; prefix: string; isLastChild: boolean }> = ({
-  span,
-  prefix,
-  isLastChild,
-}) => {
+const RecursiveSpanTree: FC<{
+  span: Span;
+  prefix: string;
+  isLastChild: boolean;
+}> = ({ span, prefix, isLastChild }) => {
   const connector = isLastChild ? '└── ' : '├── ';
-  const newPrefix = prefix + (isLastChild ? '    ' : '│   '); // Maintain vertical structure
+  const newPrefix = prefix + (isLastChild ? '    ' : '│   ');
 
   return (
     <Box flexDirection="column">
@@ -88,8 +90,8 @@ const RecursiveSpanTree: FC<{ span: Span; prefix: string; isLastChild: boolean }
 /**
  * **Main Component** (Sorts & Passes Data)
  */
-const SpanTree: FC<SpanTreeProps> = ({ spans, sampleMode }) => {
-  const sortedSpans = sortSpans(spans, sampleMode);
+const SpanTree: FC<SpanTreeProps> = ({ spans, mode }) => {
+  const sortedSpans = sortSpans(spans, mode);
 
   return (
     <Box flexDirection="column">
