@@ -28,7 +28,11 @@ export default class Tracer {
     return span;
   }
 
-  public traced<T>(name: string, fn: () => Promise<T>, parentSpanId?: string): Promise<T> {
+  public traced<T>(
+    name: string,
+    fn: () => Promise<T>,
+    parentSpanId?: string,
+  ): Promise<T> {
     const spanId = this.startSpan(name, parentSpanId);
     return fn()
       .then((result) => {
@@ -53,14 +57,14 @@ export default class Tracer {
     return JSON.stringify(
       this.getActiveSpans().map((s) => s.toJSON()),
       null,
-      2
+      2,
     );
   }
 
   private saveSpansToFile(): void {
     fs.writeFileSync(
       this.spanFile,
-      JSON.stringify(this.getActiveSpans(), null, 2)
+      JSON.stringify(this.getActiveSpans(), null, 2),
     );
   }
 }

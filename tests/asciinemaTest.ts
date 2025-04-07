@@ -1,4 +1,4 @@
-import { openSpan, closeSpan } from '../src/lib/tracingManager.js';
+import { openSpan, closeSpan, traced } from '../src/lib/tracingManager.js';
 
 let parentIndex = 0;
 let step = 0;
@@ -28,7 +28,7 @@ function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-setInterval(() => {
+setInterval(async () => {
   switch (step) {
     case 0: {
       current.flags = {
@@ -43,90 +43,69 @@ setInterval(() => {
       };
 
       current.parentId = openSpan(`Parent-${parentIndex}`);
-      nestedIds = []; // Reset nested tracking
+      nestedIds = [];
       break;
     }
 
-    case 1:
+    case 1: {
       if (current.flags.hasForkA) {
-        current.forkAId = openSpan(
-          `Parent-${parentIndex}-Fork-A`,
-          current.parentId,
-        );
+        await traced(`Parent-${parentIndex}-Fork-A`, async () => {
+          current.forkAId = openSpan(
+            `Parent-${parentIndex}-Fork-A`,
+            current.parentId,
+          );
+          for (let i = 1; i <= current.flags.forkAChildren; i++) {
+            const id = openSpan(`Fork-A-Span-${i}`, current.forkAId);
+            closeSpan(id);
+          }
+          closeSpan(current.forkAId!);
+        });
       }
       break;
+    }
 
-    case 2:
-    case 3:
-      if (current.flags.hasForkA && step - 2 < current.flags.forkAChildren) {
-        const id = openSpan(`Fork-A-Span-${step - 1}`, current.forkAId);
-        closeSpan(id);
+    case 2: {
+      if (current.flags.hasForkB) {
+        await traced(`Parent-${parentIndex}-Fork-B`, async () => {
+          current.forkBId = openSpan(
+            `Parent-${parentIndex}-Fork-B`,
+            current.parentId,
+          );
+          for (let i = 1; i <= current.flags.forkBChildren; i++) {
+            const id = openSpan(`Fork-B-Span-${i}`, current.forkBId);
+            closeSpan(id);
+          }
+          closeSpan(current.forkBId!);
+        });
       }
       break;
+    }
+
+    case 3: {
+      if (current.flags.hasNested) {
+        await traced(`Async-Chain-${parentIndex}`, async () => {
+          let lastId = current.parentId!;
+          for (let i = 1; i <= current.flags.nestedDepth; i++) {
+            const label = `Async-Job-${i}`;
+            const id = openSpan(label, lastId);
+            nestedIds.push(id);
+            lastId = id;
+          }
+        });
+      }
+      break;
+    }
 
     case 4:
-      if (current.flags.hasForkA) closeSpan(current.forkAId!);
-      break;
-
     case 5:
-      if (current.flags.hasForkB) {
-        current.forkBId = openSpan(
-          `Parent-${parentIndex}-Fork-B`,
-          current.parentId,
-        );
-      }
-      break;
-
     case 6:
+      if (nestedIds.length > 0) {
+        const toClose = nestedIds.pop();
+        if (toClose) closeSpan(toClose);
+      }
+      break;
+
     case 7:
-      if (current.flags.hasForkB && step - 6 < current.flags.forkBChildren) {
-        const id = openSpan(`Fork-B-Span-${step - 5}`, current.forkBId);
-        closeSpan(id);
-      }
-      break;
-
-    case 8:
-      if (current.flags.hasForkB) closeSpan(current.forkBId!);
-      break;
-
-    // Dynamically open nested spans with randomized depth and better naming
-    case 9: {
-      if (current.flags.hasNested) {
-        let lastId = current.parentId!;
-        for (let i = 1; i <= current.flags.nestedDepth; i++) {
-          const label = `Async-Job-${i}`;
-          const id = openSpan(label, lastId);
-          nestedIds.push(id);
-          lastId = id;
-        }
-      }
-      break;
-    }
-
-    // Close nested spans in reverse order
-    case 10: {
-      if (nestedIds.length > 0) {
-        const toClose = nestedIds.pop();
-        if (toClose) closeSpan(toClose);
-      }
-      break;
-    }
-
-    case 11:
-      if (nestedIds.length > 0) {
-        const toClose = nestedIds.pop();
-        if (toClose) closeSpan(toClose);
-      }
-      break;
-
-    case 12:
-      if (nestedIds.length > 0) {
-        const toClose = nestedIds.pop();
-        if (toClose) closeSpan(toClose);
-      }
-      break;
-
-    case 13:
       if (current.flags.hasRejoin) {
         const merge = openSpan(
           `[Rejoins-Fork-${parentIndex}]`,
@@ -136,18 +115,18 @@ setInterval(() => {
       }
       break;
 
-    case 14:
+    case 8:
       if (current.flags.hasOrphan) {
         const orphan = openSpan(`Orphan-${parentIndex}`);
         closeSpan(orphan);
       }
       break;
 
-    case 15:
+    case 9:
       closeSpan(current.parentId!);
       break;
 
-    case 16:
+    case 10:
       parentIndex++;
       step = -1;
       break;
