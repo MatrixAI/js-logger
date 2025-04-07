@@ -1,11 +1,9 @@
 import type Span from '../lib/Span.js';
-import fs from 'fs';
 import { Command } from 'commander';
 import React, { useEffect, useState } from 'react';
 import { render, Box, Text } from 'ink';
 import SpanTree from './SpanTree.js';
-
-const SPAN_FILE = 'spans.json';
+import tracer from '../lib/tracingManager.js';
 
 // Use commander to parse CLI options
 const program = new Command();
@@ -16,9 +14,9 @@ program
 const options = program.opts();
 const sampleMode = options.sample;
 
+// ✅ Use Tracer directly
 function loadSpans(): Span[] {
-  if (!fs.existsSync(SPAN_FILE)) return [];
-  return JSON.parse(fs.readFileSync(SPAN_FILE, 'utf8'));
+  return tracer.getActiveSpans();
 }
 
 const App = () => {
