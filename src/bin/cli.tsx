@@ -1,9 +1,9 @@
 import type Span from '../lib/Span.js';
+import fs from 'fs';
 import { Command } from 'commander';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { render, Box, Text } from 'ink';
 import SpanTree from './SpanTree.js';
-import tracer from '../lib/tracingManager.js';
 
 // Use commander to parse CLI options
 const program = new Command();
@@ -14,17 +14,26 @@ program
 const options = program.opts();
 const sampleMode = options.sample;
 
-// ✅ Use Tracer directly
-function loadSpans(): Span[] {
-  return tracer.getActiveSpans();
+async function loadSpans(): Promise<Array<Span>> {
+  if (!fs.existsSync('spans.jsonl')) return [];
+  const spans: Array<Span> = [];
+  const file = await fs.promises.open('testSpans.jsonl', 'r');
+  for await (const line of file.readLines()) {
+    spans.push(JSON.parse(line));
+  }
+  await file.close();
+  return spans;
 }
 
 const App = () => {
-  const [spans, setSpans] = useState<Span[]>([]);
+  const [spans, setSpans] = useState<Array<Span>>([]);
 
   useEffect(() => {
     const id = setInterval(() => {
-      setSpans(loadSpans());
+      (async () => {
+        const result = await loadSpans();
+        setSpans(result);
+      })();
     }, 1000);
 
     const handleExit = () => {

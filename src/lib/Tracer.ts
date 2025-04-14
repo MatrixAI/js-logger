@@ -1,10 +1,15 @@
-import fs from 'fs';
 import Span from './Span.js';
 
-export default class Tracer {
-  private activeSpans: Map<string, Span> = new Map();
-  private spanFile = 'spans.json';
-  private jsonlStream = fs.createWriteStream('spans.jsonl', { flags: 'a' });
+class Tracer {
+  protected activeSpans: Map<string, Span> = new Map();
+  protected queue: Array<Span> = [];
+  protected resolveWaitChunksP: (() => void) | undefined;
+  protected ended: boolean = false;
+
+  protected queueSpan(span: Span) {
+    this.queue.push(span);
+    if (this.resolveWaitChunksP != null) this.resolveWaitChunksP();
+  }
 
   public startSpan(name: string, parentSpanId?: string): string {
     const span = new Span(name, parentSpanId);
@@ -14,43 +19,29 @@ export default class Tracer {
       this.activeSpans.get(parentSpanId)!.children.push(span);
     }
 
-    this.saveSpansToFile();
     return span.spanId;
   }
 
-  public endSpan(spanId: string): Span | null {
+  public endSpan(spanId: string): Span | undefined {
     const span = this.activeSpans.get(spanId);
-    if (!span) return null;
+    if (!span) return;
 
     span.close();
-    this.jsonlStream.write(JSON.stringify(span.toJSON()) + '\n');
-    this.saveSpansToFile();
+    this.queueSpan(span);
     return span;
   }
 
-  public traced<T>(
+  public async traced<T>(
     name: string,
     fn: () => Promise<T>,
     parentSpanId?: string,
   ): Promise<T> {
     const spanId = this.startSpan(name, parentSpanId);
-    return fn()
-      .then((result) => {
-        this.endSpan(spanId);
-        return result;
-      })
-      .catch((err) => {
-        this.endSpan(spanId);
-        throw err;
-      });
+    return await fn().finally(() => this.endSpan(spanId));
   }
 
-  public getActiveSpans(): Span[] {
+  public getActiveSpans(): Array<Span> {
     return Array.from(this.activeSpans.values());
-  }
-
-  public flush(): void {
-    this.saveSpansToFile();
   }
 
   public getTraceJSON(): string {
@@ -61,10 +52,23 @@ export default class Tracer {
     );
   }
 
-  private saveSpansToFile(): void {
-    fs.writeFileSync(
-      this.spanFile,
-      JSON.stringify(this.getActiveSpans(), null, 2),
-    );
+  public endTracing(): void {
+    this.ended = true;
+  }
+
+  public async *streamEvents(): AsyncGenerator<Span, void, void> {
+    while (true) {
+      const value = this.queue.shift();
+      if (value == null) {
+        if (this.ended) break;
+        await new Promise<void>((resolve) => {
+          this.resolveWaitChunksP = resolve;
+        });
+        continue;
+      }
+      yield value;
+    }
   }
 }
+
+export default Tracer;

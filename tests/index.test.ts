@@ -1,3 +1,4 @@
+import fs from 'fs';
 import process from 'node:process';
 import Logger from '../dist/index.js';
 import {
@@ -7,8 +8,23 @@ import {
   StreamHandler,
   formatting,
 } from '../dist/index.js';
+import { streamEvents, endTracing } from '#lib/TracingManager.js';
 
 describe('index', () => {
+  let saveToFileP: Promise<void> | undefined;
+  beforeAll(() => {
+    saveToFileP = (async () => {
+      const file = await fs.promises.open('testSpans.jsonl', 'w');
+      for await (const event of streamEvents()) {
+        await file.write(JSON.stringify(event) + '\n');
+      }
+      await file.close();
+    })();
+  });
+  afterAll(async () => {
+    endTracing();
+    await saveToFileP;
+  });
   beforeEach(() => {
     jest.clearAllMocks();
   });

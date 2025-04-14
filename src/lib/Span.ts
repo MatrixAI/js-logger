@@ -1,30 +1,18 @@
-export interface SpanJSON {
-  spanId: string;
-  name: string;
-  startTime: number;
-  endTime: number | undefined;
-  parentSpanId: string | undefined;
-  isCompleted: boolean;
-  children: SpanJSON[];
-}
+import type { SpanJSON } from './types.js';
 
 class Span {
-  public spanId: string;
+  public spanId: string = `span-${Date.now()}-${Math.random()
+    .toString(36)
+    .substring(2, 5)}`;
   public name: string;
-  public startTime: number;
+  public startTime: number = Date.now();
   public endTime?: number;
   public parentSpanId?: string;
-  public children: Array<Span>;
+  public children: Array<Span> = [];
 
-  constructor(name: string, parentSpanId: string | undefined = undefined) {
-    this.spanId = `span-${Date.now()}-${Math.random()
-      .toString(36)
-      .substr(2, 5)}`;
+  constructor(name: string, parentSpanId?: string) {
     this.name = name;
-    this.startTime = Date.now();
-    this.endTime = undefined;
     this.parentSpanId = parentSpanId;
-    this.children = [];
   }
 
   public close(): void {
@@ -32,10 +20,10 @@ class Span {
   }
 
   public isCompleted(): boolean {
-    return this.endTime !== undefined;
+    return this.endTime != null;
   }
 
-  toJSON(): SpanJSON {
+  public toJSON(): SpanJSON {
     return {
       spanId: this.spanId,
       name: this.name,

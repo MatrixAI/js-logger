@@ -1,13 +1,33 @@
-import { openSpan, closeSpan, traced } from '../src/lib/tracingManager.js';
+import fs from 'fs';
+import * as fc from 'fast-check';
+import {
+  openSpan,
+  closeSpan,
+  traced,
+  streamEvents,
+} from '#lib/TracingManager.js';
 
 let parentIndex = 0;
 let step = 0;
-let nestedIds: string[] = [];
+let nestedIds: Array<string> = [];
 
-const current = {
-  parentId: undefined as string | undefined,
-  forkAId: undefined as string | undefined,
-  forkBId: undefined as string | undefined,
+type Flags = {
+  hasForkA: boolean;
+  hasForkB: boolean;
+  forkAChildren: number;
+  forkBChildren: number;
+  hasNested: boolean;
+  nestedDepth: number;
+  hasRejoin: boolean;
+  hasOrphan: boolean;
+};
+
+const current: {
+  parentId?: string;
+  forkAId?: string;
+  forkBId?: string;
+  flags: Flags;
+} = {
   flags: {
     hasForkA: true,
     hasForkB: true,
@@ -20,28 +40,29 @@ const current = {
   },
 };
 
-function randomBool(prob = 0.7) {
-  return Math.random() < prob;
-}
+const flagArb = fc.record({
+  hasForkA: fc.boolean(),
+  hasForkB: fc.boolean(),
+  forkAChildren: fc.integer({ min: 1, max: 2 }),
+  forkBChildren: fc.integer({ min: 1, max: 2 }),
+  hasNested: fc.boolean(),
+  nestedDepth: fc.integer({ min: 1, max: 3 }),
+  hasRejoin: fc.boolean(),
+  hasOrphan: fc.boolean(),
+});
 
-function randomInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+const saveToFileP = (async () => {
+  const file = await fs.promises.open('span.jsonl', 'w');
+  for await (const event of streamEvents()) {
+    await file.write(JSON.stringify(event) + '\n');
+  }
+  await file.close();
+})();
 
 setInterval(async () => {
   switch (step) {
     case 0: {
-      current.flags = {
-        hasForkA: randomBool(0.9),
-        hasForkB: randomBool(0.7),
-        forkAChildren: randomInt(1, 2),
-        forkBChildren: randomInt(1, 2),
-        hasNested: randomBool(0.6),
-        nestedDepth: randomInt(1, 3),
-        hasRejoin: randomBool(0.5),
-        hasOrphan: randomBool(0.7),
-      };
-
+      current.flags = fc.sample(flagArb, 1)[0];
       current.parentId = openSpan(`Parent-${parentIndex}`);
       nestedIds = [];
       break;
@@ -98,14 +119,15 @@ setInterval(async () => {
 
     case 4:
     case 5:
-    case 6:
+    case 6: {
       if (nestedIds.length > 0) {
         const toClose = nestedIds.pop();
         if (toClose) closeSpan(toClose);
       }
       break;
+    }
 
-    case 7:
+    case 7: {
       if (current.flags.hasRejoin) {
         const merge = openSpan(
           `[Rejoins-Fork-${parentIndex}]`,
@@ -114,23 +136,30 @@ setInterval(async () => {
         closeSpan(merge);
       }
       break;
+    }
 
-    case 8:
+    case 8: {
       if (current.flags.hasOrphan) {
         const orphan = openSpan(`Orphan-${parentIndex}`);
         closeSpan(orphan);
       }
       break;
+    }
 
-    case 9:
+    case 9: {
       closeSpan(current.parentId!);
       break;
+    }
 
-    case 10:
+    case 10: {
       parentIndex++;
       step = -1;
       break;
+    }
   }
 
   step++;
-}, 200);
+  process.stderr.write('generated data step');
+}, 500);
+
+await saveToFileP;
