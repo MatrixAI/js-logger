@@ -3,7 +3,6 @@ import type Handler from './Handler.js';
 import { LogLevel } from './types.js';
 import ConsoleErrHandler from './handlers/ConsoleErrHandler.js';
 import * as utils from './utils.js';
-import { openSpan, closeSpan } from './lib/TracingManager.js';
 
 class Logger {
   public readonly key: string;
@@ -26,7 +25,7 @@ class Logger {
     this.level = level;
     this.handlers = new Set(handlers);
     this.parent = parent;
-    this.keys = parent !== undefined ? `${parent.keys}.${key}` : key;
+    this.keys = parent != null ? `${parent.keys}.${key}` : key;
     this.loggersRegistry = new FinalizationRegistry((key: string) => {
       this._loggers.delete(key);
     });
@@ -37,20 +36,20 @@ class Logger {
       [...this._loggers.entries()]
         .map(([key, loggerRef]) => {
           const logger = loggerRef.deref();
-          if (logger !== undefined) {
+          if (logger != null) {
             return [key, logger];
           } else {
             return undefined;
           }
         })
-        .filter((e) => e !== undefined) as Array<[string, Logger]>,
+        .filter((e) => e != null) as Array<[string, Logger]>,
     );
   }
 
   public getChild(key: string): Logger {
     let loggerRef = this._loggers.get(key);
     let logger = loggerRef?.deref();
-    if (logger !== undefined) return logger;
+    if (logger != null) return logger;
     logger = new Logger(key, LogLevel.NOTSET, [], this);
     loggerRef = new WeakRef(logger);
     this._loggers.set(key, loggerRef);
@@ -108,79 +107,75 @@ class Logger {
     delete this.filter;
   }
 
+  public debug(msg?: ToString, format?: LogFormatter): void;
+  public debug(
+    msg: ToString | undefined,
+    data: LogData,
+    format?: LogFormatter,
+  ): void;
   public debug(
     msg?: ToString,
     formatOrData?: LogFormatter | LogData,
     format?: LogFormatter,
-    parentSpanId?: string,
-  ): string {
-    if (formatOrData === undefined || typeof formatOrData === 'function') {
-      return this.log(
-        msg,
-        {},
-        LogLevel.DEBUG,
-        formatOrData as LogFormatter,
-        parentSpanId,
-      );
+  ): void {
+    if (formatOrData == null || typeof formatOrData === 'function') {
+      return this.log(msg, {}, LogLevel.DEBUG, formatOrData as LogFormatter);
     } else {
-      return this.log(msg, formatOrData, LogLevel.DEBUG, format, parentSpanId);
+      return this.log(msg, formatOrData, LogLevel.DEBUG, format);
     }
   }
 
+  public info(msg?: ToString, format?: LogFormatter): void;
+  public info(
+    msg: ToString | undefined,
+    data: LogData,
+    format?: LogFormatter,
+  ): void;
   public info(
     msg?: ToString,
     formatOrData?: LogFormatter | LogData,
     format?: LogFormatter,
-    parentSpanId?: string,
-  ): string {
-    if (formatOrData === undefined || typeof formatOrData === 'function') {
-      return this.log(
-        msg,
-        {},
-        LogLevel.INFO,
-        formatOrData as LogFormatter,
-        parentSpanId,
-      );
+  ): void {
+    if (formatOrData == null || typeof formatOrData === 'function') {
+      return this.log(msg, {}, LogLevel.INFO, formatOrData as LogFormatter);
     } else {
-      return this.log(msg, formatOrData, LogLevel.INFO, format, parentSpanId);
+      return this.log(msg, formatOrData, LogLevel.INFO, format);
     }
   }
 
+  public warn(msg?: ToString, format?: LogFormatter): void;
+  public warn(
+    msg: ToString | undefined,
+    data: LogData,
+    format?: LogFormatter,
+  ): void;
   public warn(
     msg?: ToString,
     formatOrData?: LogFormatter | LogData,
     format?: LogFormatter,
-    parentSpanId?: string,
-  ): string {
-    if (formatOrData === undefined || typeof formatOrData === 'function') {
-      return this.log(
-        msg,
-        {},
-        LogLevel.WARN,
-        formatOrData as LogFormatter,
-        parentSpanId,
-      );
+  ): void {
+    if (formatOrData == null || typeof formatOrData === 'function') {
+      return this.log(msg, {}, LogLevel.WARN, formatOrData as LogFormatter);
     } else {
-      return this.log(msg, formatOrData, LogLevel.WARN, format, parentSpanId);
+      return this.log(msg, formatOrData, LogLevel.WARN, format);
     }
   }
 
+  public error(msg?: ToString, format?: LogFormatter): void;
+  public error(
+    msg: ToString | undefined,
+    data: LogData,
+    format?: LogFormatter,
+  ): void;
   public error(
     msg?: ToString,
     formatOrData?: LogFormatter | LogData,
     format?: LogFormatter,
-    parentSpanId?: string,
-  ): string {
-    if (formatOrData === undefined || typeof formatOrData === 'function') {
-      return this.log(
-        msg,
-        {},
-        LogLevel.ERROR,
-        formatOrData as LogFormatter,
-        parentSpanId,
-      );
+  ): void {
+    if (formatOrData == null || typeof formatOrData === 'function') {
+      return this.log(msg, {}, LogLevel.ERROR, formatOrData as LogFormatter);
     } else {
-      return this.log(msg, formatOrData, LogLevel.ERROR, format, parentSpanId);
+      return this.log(msg, formatOrData, LogLevel.ERROR, format);
     }
   }
 
@@ -189,18 +184,11 @@ class Logger {
     data: LogData,
     level: LogLevel,
     format?: LogFormatter,
-    parentSpanId?: string, // Optional parent span
-  ): string {
+  ): void {
     // Filter on level before making a record
-    if (level < this.getEffectiveLevel()) return '';
-
-    const spanId = openSpan(msg?.toString() || 'Log Event', parentSpanId);
-
+    if (level < this.getEffectiveLevel()) return;
     const record = this.makeRecord(msg, data, level);
     this.callHandlers(record, level, format);
-
-    closeSpan(spanId);
-    return spanId;
   }
 
   /**
@@ -251,7 +239,7 @@ class Logger {
     // This is also called when traversing up the parent
     if (level < this.getEffectiveLevel()) return;
     keys = `${this.key}.${keys}`;
-    if (this.filter !== undefined && !this.filter.test(keys)) return;
+    if (this.filter != null && !this.filter.test(keys)) return;
     for (const handler of this.handlers) {
       handler.handle(record, format);
     }
