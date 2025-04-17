@@ -1,6 +1,6 @@
 import type { LogRecord, LogFormatter } from './types.js';
 import * as utils from './utils.js';
-
+console.log('test');
 const level = Symbol('level');
 const key = Symbol('key');
 const keys = Symbol('keys');

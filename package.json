@@ -37,6 +37,7 @@
     "bench": "tsc -p ./tsconfig.build.json && shx rm -rf ./benches/results && tsx ./benches/index.ts"
   },
   "devDependencies": {
+    "@matrixai/lint": "file:../js-eslint",
     "@swc/core": "1.3.82",
     "@swc/jest": "^0.2.29",
     "@types/jest": "^29.5.2",

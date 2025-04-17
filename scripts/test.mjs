@@ -12,7 +12,6 @@ const projectPath = path.dirname(
 
 const platform = os.platform();
 
-/* eslint-disable no-console */
 async function main(argv = process.argv) {
   argv = argv.slice(2);
   const tscArgs = [`-p`, path.join(projectPath, 'tsconfig.build.json')];
@@ -38,7 +37,6 @@ async function main(argv = process.argv) {
     shell: platform === 'win32' ? true : false,
   });
 }
-/* eslint-enable no-console */
 
 if (import.meta.url.startsWith('file:')) {
   const modulePath = url.fileURLToPath(import.meta.url);
