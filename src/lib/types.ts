@@ -8,4 +8,9 @@ type SpanJSON = {
   children: Array<SpanJSON>;
 };
 
-export type { SpanJSON };
+type SpanEvent = {
+  type: 'start' | 'stop';
+  span: SpanJSON;
+};
+
+export type { SpanJSON, SpanEvent };

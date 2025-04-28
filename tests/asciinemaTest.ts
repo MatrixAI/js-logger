@@ -159,7 +159,7 @@ setInterval(async () => {
   }
 
   step++;
-  process.stderr.write('generated data step');
+  process.stderr.write('generated data step\n');
 }, 500);
 
 await saveToFileP;

@@ -1,12 +1,13 @@
+import type { SpanEvent } from './types.js';
 import Span from './Span.js';
 
 class Tracer {
   protected activeSpans: Map<string, Span> = new Map();
-  protected queue: Array<Span> = [];
+  protected queue: Array<SpanEvent> = [];
   protected resolveWaitChunksP: (() => void) | undefined;
   protected ended: boolean = false;
 
-  protected queueSpan(span: Span) {
+  protected queueSpanEvent(span: SpanEvent) {
     this.queue.push(span);
     if (this.resolveWaitChunksP != null) this.resolveWaitChunksP();
   }
@@ -14,11 +15,10 @@ class Tracer {
   public startSpan(name: string, parentSpanId?: string): string {
     const span = new Span(name, parentSpanId);
     this.activeSpans.set(span.spanId, span);
-
     if (parentSpanId && this.activeSpans.has(parentSpanId)) {
       this.activeSpans.get(parentSpanId)!.children.push(span);
     }
-
+    this.queueSpanEvent({ type: 'start', span: span.toJSON() });
     return span.spanId;
   }
 
@@ -27,7 +27,7 @@ class Tracer {
     if (!span) return;
 
     span.close();
-    this.queueSpan(span);
+    this.queueSpanEvent({ type: 'stop', span: span.toJSON() });
     return span;
   }
 
@@ -56,7 +56,7 @@ class Tracer {
     this.ended = true;
   }
 
-  public async *streamEvents(): AsyncGenerator<Span, void, void> {
+  public async *streamEvents(): AsyncGenerator<SpanEvent, void, void> {
     while (true) {
       const value = this.queue.shift();
       if (value == null) {

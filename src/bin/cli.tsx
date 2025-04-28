@@ -15,9 +15,8 @@ const options = program.opts();
 const sampleMode = options.sample;
 
 async function loadSpans(): Promise<Array<Span>> {
-  if (!fs.existsSync('spans.jsonl')) return [];
   const spans: Array<Span> = [];
-  const file = await fs.promises.open('testSpans.jsonl', 'r');
+  const file = await fs.promises.open('span.jsonl', 'r');
   for await (const line of file.readLines()) {
     spans.push(JSON.parse(line));
   }
