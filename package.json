@@ -30,7 +30,7 @@
     "postversion": "npm install --package-lock-only --ignore-scripts --silent",
     "tsx": "tsx",
     "test": "node ./scripts/test.mjs",
-    "lint": "eslint '{src,tests,scripts,benches}/**/*.{js,mjs,ts,mts,jsx,tsx}'",
+    "lint": "matrixai-lint --eslint \"{src,tests,scripts,benches}/**/*.{js,mjs,ts,mts,jsx,tsx}\"",
     "lintfix": "eslint '{src,tests,scripts,benches}/**/*.{js,mjs,ts,mts,jsx,tsx}' --fix",
     "lint-shell": "find ./src ./tests ./scripts -type f -regextype posix-extended -regex '.*\\.(sh)' -exec shellcheck {} +",
     "docs": "shx rm -rf ./docs && typedoc --gitRevision master --tsconfig ./tsconfig.build.json --out ./docs src",
