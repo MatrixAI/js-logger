@@ -1,33 +1,32 @@
-import type { SpanEvent, SpanId } from './types.js';
+import type { SpanEvent } from './types.js';
 import { IdSortable, utils as idUtils } from '@matrixai/id';
 
 class Tracer {
-  protected activeSpans: Map<SpanId, string> = new Map();
+  protected activeSpans: Map<string, string> = new Map();
   protected queue: Array<SpanEvent> = [];
   protected resolveWaitChunksP: (() => void) | undefined;
   protected ended: boolean = false;
+  protected idGen = new IdSortable();
+
+  protected nextId(): string {
+    const result = this.idGen.next();
+    if (result.done || result.value == null) {
+      throw new Error('Unexpected end of id generator');
+    }
+    return idUtils.toMultibase(result.value, 'base64');
+  }
 
   protected queueSpanEvent(evt: SpanEvent) {
-    // Convert the binary id to base64-encoded id
-    if (evt.id instanceof IdSortable) {
-      evt.id = idUtils.toMultibase(evt.id.get(), 'base64');
-    }
-    if (evt.spanId instanceof IdSortable) {
-      evt.spanId = idUtils.toMultibase(evt.spanId.get(), 'base64');
-    }
-    if (evt.parentSpanId instanceof IdSortable) {
-      evt.parentSpanId = idUtils.toMultibase(evt.parentSpanId.get(), 'base64');
-    }
     this.queue.push(evt);
     if (this.resolveWaitChunksP != null) this.resolveWaitChunksP();
   }
 
-  public startSpan(name: string, parentSpanId?: SpanId): SpanId {
-    const spanId = new IdSortable();
+  public startSpan(name: string, parentSpanId?: string): string {
+    const spanId = this.nextId();
     this.activeSpans.set(spanId, name);
     this.queueSpanEvent({
       type: 'start',
-      id: new IdSortable(),
+      id: this.nextId(),
       spanId: spanId,
       parentSpanId: parentSpanId,
       name: name,
@@ -35,13 +34,13 @@ class Tracer {
     return spanId;
   }
 
-  public endSpan(spanId: SpanId): void {
+  public endSpan(spanId: string): void {
     const name = this.activeSpans.get(spanId);
     if (!name) return;
     this.activeSpans.delete(spanId);
     this.queueSpanEvent({
       type: 'end',
-      id: new IdSortable(),
+      id: this.nextId(),
       spanId: spanId,
       name: name,
     });
@@ -49,7 +48,7 @@ class Tracer {
 
   public async traced<T>(
     name: string,
-    parentSpanId: SpanId | undefined,
+    parentSpanId: string | undefined,
     fn: () => T | Promise<T>,
   ): Promise<T> {
     const fnProm = async () => {

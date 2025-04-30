@@ -1,5 +1,6 @@
 export { default } from './Logger.js';
 export { default as Handler } from './Handler.js';
+export { default as tracer } from './tracer/index.js';
 export * as formatting from './formatting.js';
 export * from './handlers/index.js';
 export * from './tracer/index.js';

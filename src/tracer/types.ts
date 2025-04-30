@@ -1,17 +1,12 @@
-import type { IdSortable } from '@matrixai/id';
-
-type SpanId = IdSortable | string;
-type EventId = IdSortable | string;
-
 type Span = {
-  spanId: SpanId;
+  spanId: string;
   name: string;
-  parentSpanId?: SpanId;
+  parentSpanId?: string;
 };
 
 type SpanEvent = Span & {
   type: 'start' | 'end';
-  id: EventId;
+  id: string;
 };
 
-export type { SpanId, EventId, Span, SpanEvent };
+export type { Span, SpanEvent };

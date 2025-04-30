@@ -1,11 +1,10 @@
-import type { SpanId } from '#tracer/index.js';
 import fs from 'fs';
 import * as fc from 'fast-check';
 import tracer from '#tracer/index.js';
 
 let parentIndex = 0;
 let step = 0;
-let nestedIds: Array<SpanId> = [];
+let nestedIds: Array<string> = [];
 
 type Flags = {
   hasForkA: boolean;
@@ -19,9 +18,9 @@ type Flags = {
 };
 
 const current: {
-  parentId?: SpanId;
-  forkAId?: SpanId;
-  forkBId?: SpanId;
+  parentId?: string;
+  forkAId?: string;
+  forkBId?: string;
   flags: Flags;
 } = {
   flags: {
