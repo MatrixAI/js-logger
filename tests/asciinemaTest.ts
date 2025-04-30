@@ -1,15 +1,11 @@
+import type { SpanId } from '#tracer/index.js';
 import fs from 'fs';
 import * as fc from 'fast-check';
-import {
-  openSpan,
-  closeSpan,
-  traced,
-  streamEvents,
-} from '#lib/TracingManager.js';
+import tracer from '#tracer/index.js';
 
 let parentIndex = 0;
 let step = 0;
-let nestedIds: Array<string> = [];
+let nestedIds: Array<SpanId> = [];
 
 type Flags = {
   hasForkA: boolean;
@@ -23,9 +19,9 @@ type Flags = {
 };
 
 const current: {
-  parentId?: string;
-  forkAId?: string;
-  forkBId?: string;
+  parentId?: SpanId;
+  forkAId?: SpanId;
+  forkBId?: SpanId;
   flags: Flags;
 } = {
   flags: {
@@ -53,7 +49,7 @@ const flagArb = fc.record({
 
 const saveToFileP = (async () => {
   const file = await fs.promises.open('span.jsonl', 'w');
-  for await (const event of streamEvents()) {
+  for await (const event of tracer.streamEvents()) {
     await file.write(JSON.stringify(event) + '\n');
   }
   await file.close();
@@ -63,56 +59,68 @@ setInterval(async () => {
   switch (step) {
     case 0: {
       current.flags = fc.sample(flagArb, 1)[0];
-      current.parentId = openSpan(`Parent-${parentIndex}`);
+      current.parentId = tracer.startSpan(`Parent-${parentIndex}`);
       nestedIds = [];
       break;
     }
 
     case 1: {
       if (current.flags.hasForkA) {
-        await traced(`Parent-${parentIndex}-Fork-A`, async () => {
-          current.forkAId = openSpan(
-            `Parent-${parentIndex}-Fork-A`,
-            current.parentId,
-          );
-          for (let i = 1; i <= current.flags.forkAChildren; i++) {
-            const id = openSpan(`Fork-A-Span-${i}`, current.forkAId);
-            closeSpan(id);
-          }
-          closeSpan(current.forkAId!);
-        });
+        await tracer.traced(
+          `Parent-${parentIndex}-Fork-A`,
+          undefined,
+          async () => {
+            current.forkAId = tracer.startSpan(
+              `Parent-${parentIndex}-Fork-A`,
+              current.parentId,
+            );
+            for (let i = 1; i <= current.flags.forkAChildren; i++) {
+              const id = tracer.startSpan(`Fork-A-Span-${i}`, current.forkAId);
+              tracer.endSpan(id);
+            }
+            tracer.endSpan(current.forkAId!);
+          },
+        );
       }
       break;
     }
 
     case 2: {
       if (current.flags.hasForkB) {
-        await traced(`Parent-${parentIndex}-Fork-B`, async () => {
-          current.forkBId = openSpan(
-            `Parent-${parentIndex}-Fork-B`,
-            current.parentId,
-          );
-          for (let i = 1; i <= current.flags.forkBChildren; i++) {
-            const id = openSpan(`Fork-B-Span-${i}`, current.forkBId);
-            closeSpan(id);
-          }
-          closeSpan(current.forkBId!);
-        });
+        await tracer.traced(
+          `Parent-${parentIndex}-Fork-B`,
+          undefined,
+          async () => {
+            current.forkBId = tracer.startSpan(
+              `Parent-${parentIndex}-Fork-B`,
+              current.parentId,
+            );
+            for (let i = 1; i <= current.flags.forkBChildren; i++) {
+              const id = tracer.startSpan(`Fork-B-Span-${i}`, current.forkBId);
+              tracer.endSpan(id);
+            }
+            tracer.endSpan(current.forkBId!);
+          },
+        );
       }
       break;
     }
 
     case 3: {
       if (current.flags.hasNested) {
-        await traced(`Async-Chain-${parentIndex}`, async () => {
-          let lastId = current.parentId!;
-          for (let i = 1; i <= current.flags.nestedDepth; i++) {
-            const label = `Async-Job-${i}`;
-            const id = openSpan(label, lastId);
-            nestedIds.push(id);
-            lastId = id;
-          }
-        });
+        await tracer.traced(
+          `Async-Chain-${parentIndex}`,
+          undefined,
+          async () => {
+            let lastId = current.parentId!;
+            for (let i = 1; i <= current.flags.nestedDepth; i++) {
+              const label = `Async-Job-${i}`;
+              const id = tracer.startSpan(label, lastId);
+              nestedIds.push(id);
+              lastId = id;
+            }
+          },
+        );
       }
       break;
     }
@@ -122,32 +130,32 @@ setInterval(async () => {
     case 6: {
       if (nestedIds.length > 0) {
         const toClose = nestedIds.pop();
-        if (toClose) closeSpan(toClose);
+        if (toClose) tracer.endSpan(toClose);
       }
       break;
     }
 
     case 7: {
       if (current.flags.hasRejoin) {
-        const merge = openSpan(
+        const merge = tracer.startSpan(
           `[Rejoins-Fork-${parentIndex}]`,
           current.parentId,
         );
-        closeSpan(merge);
+        tracer.endSpan(merge);
       }
       break;
     }
 
     case 8: {
       if (current.flags.hasOrphan) {
-        const orphan = openSpan(`Orphan-${parentIndex}`);
-        closeSpan(orphan);
+        const orphan = tracer.startSpan(`Orphan-${parentIndex}`);
+        tracer.endSpan(orphan);
       }
       break;
     }
 
     case 9: {
-      closeSpan(current.parentId!);
+      tracer.endSpan(current.parentId!);
       break;
     }
 
