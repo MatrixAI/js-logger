@@ -13,7 +13,7 @@ class Tracer {
     if (result.done || result.value == null) {
       throw new Error('Unexpected end of id generator');
     }
-    return result.value.toMultibase('base32hex');
+    return result.value.toMultibase('base32hex') as SpanId;
   }
 
   protected queueSpanEvent(evt: SpanEvent) {
@@ -46,7 +46,7 @@ class Tracer {
 
   public async traced<T>(
     name: string,
-    parentSpanId: string | undefined,
+    parentSpanId: SpanId | undefined,
     fn: () => T | Promise<T>,
   ): Promise<T> {
     const fnProm = async () => {

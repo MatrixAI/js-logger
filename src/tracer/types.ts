@@ -1,4 +1,4 @@
-type SpanId = string;
+type SpanId = string & { readonly brand: unique symbol };
 
 /**
  * A span is a virtual concept, not an actual object. A span is made up of
