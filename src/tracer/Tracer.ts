@@ -1,54 +1,54 @@
-import type { SpanEvent } from './types.js';
-import { IdSortable, utils as idUtils } from '@matrixai/id';
+import type { SpanEvent, SpanId } from './types.js';
+import { IdSortable } from '@matrixai/id';
 
 class Tracer {
-  protected activeSpans: Map<string, string> = new Map();
+  protected activeSpans: Map<SpanId, string> = new Map();
   protected queue: Array<SpanEvent> = [];
   protected resolveWaitChunksP: (() => void) | undefined;
   protected ended: boolean = false;
   protected idGen = new IdSortable();
+  protected shouldTrace = false;
 
-  protected nextId(): string {
+  protected nextId(): SpanId {
     const result = this.idGen.next();
     if (result.done || result.value == null) {
       throw new Error('Unexpected end of id generator');
     }
-    return idUtils.toMultibase(result.value, 'base64');
+    return result.value.toMultibase('base32hex') as SpanId;
   }
 
-  protected queueSpanEvent(evt: SpanEvent) {
+  protected queueSpanEvent(evt: SpanEvent): void {
+    if (!this.shouldTrace) return;
     this.queue.push(evt);
     if (this.resolveWaitChunksP != null) this.resolveWaitChunksP();
   }
 
-  public startSpan(name: string, parentSpanId?: string): string {
+  public startSpan(name: string, parentSpanId?: SpanId): SpanId {
     const spanId = this.nextId();
     this.activeSpans.set(spanId, name);
     this.queueSpanEvent({
       type: 'start',
-      id: this.nextId(),
-      spanId: spanId,
-      parentSpanId: parentSpanId,
+      id: spanId,
+      parentId: parentSpanId,
       name: name,
     });
     return spanId;
   }
 
-  public endSpan(spanId: string): void {
+  public endSpan(spanId: SpanId): void {
     const name = this.activeSpans.get(spanId);
     if (!name) return;
     this.activeSpans.delete(spanId);
     this.queueSpanEvent({
-      type: 'end',
+      type: 'stop',
       id: this.nextId(),
-      spanId: spanId,
-      name: name,
+      startId: spanId,
     });
   }
 
   public async traced<T>(
     name: string,
-    parentSpanId: string | undefined,
+    parentSpanId: SpanId | undefined,
     fn: () => T | Promise<T>,
   ): Promise<T> {
     const fnProm = async () => {
@@ -76,6 +76,13 @@ class Tracer {
       }
       yield value;
     }
+  }
+
+  public disableTracing(): void {
+    this.shouldTrace = false;
+    this.ended = true;
+    this.resolveWaitChunksP?.();
+    this.queue = [];
   }
 }
 
