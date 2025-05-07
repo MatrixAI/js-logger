@@ -7,6 +7,7 @@ class Tracer {
   protected resolveWaitChunksP: (() => void) | undefined;
   protected ended: boolean = false;
   protected idGen = new IdSortable();
+  protected shouldTrace = false;
 
   protected nextId(): SpanId {
     const result = this.idGen.next();
@@ -16,7 +17,8 @@ class Tracer {
     return result.value.toMultibase('base32hex') as SpanId;
   }
 
-  protected queueSpanEvent(evt: SpanEvent) {
+  protected queueSpanEvent(evt: SpanEvent): void {
+    if (!this.shouldTrace) return;
     this.queue.push(evt);
     if (this.resolveWaitChunksP != null) this.resolveWaitChunksP();
   }
@@ -74,6 +76,13 @@ class Tracer {
       }
       yield value;
     }
+  }
+
+  public disableTracing(): void {
+    this.shouldTrace = false;
+    this.ended = true;
+    this.resolveWaitChunksP?.();
+    this.queue = [];
   }
 }
 
