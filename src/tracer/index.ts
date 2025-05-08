@@ -4,4 +4,4 @@ import Tracer from './Tracer.js';
 const tracer = new Tracer();
 export default tracer;
 
-export * from './types.js';
+export type * from './types.js';
