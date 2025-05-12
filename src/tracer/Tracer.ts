@@ -7,7 +7,7 @@ class Tracer {
   protected resolveWaitChunksP: (() => void) | undefined;
   protected ended: boolean = false;
   protected idGen = new IdSortable();
-  protected shouldTrace = false;
+  protected shouldTrace = true;
 
   protected nextId(): SpanId {
     const result = this.idGen.next();
