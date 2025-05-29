@@ -1,10 +1,14 @@
 # js-logger
 
-This library provides a JavaScript/TypeScript logger inspired by Python's logger.
+This library provides a JavaScript/TypeScript logger inspired by Python's
+logger.
 
-- Simple logging with default handlers supporting `console.log`, `console.error`, and `process.stderr`.
-- Fast, logging level checks or log filters are applied **before** log records are created
-- Complex log records properties support lazy evaluation, so they evaluated only when they need to be rendered
+- Simple logging with default handlers supporting `console.log`,
+  `console.error`, and `process.stderr`.
+- Fast, logging level checks or log filters are applied **before** log records
+  are created
+- Complex log records properties support lazy evaluation, so they evaluated only
+  when they need to be rendered
 - Flexible composition of loggers, handlers and formatters
 - Custom formatting using template literals
 - Supports structured logging through a JSON formatter
@@ -44,7 +48,8 @@ loggerChild.info(
 );
 ```
 
-There's lots more options available in the source code. See the docs and see the source code for more details.
+There's lots more options available in the source code. See the docs and see the
+source code for more details.
 
 ## Development
 
