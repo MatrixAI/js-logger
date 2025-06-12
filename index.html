@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Span Visualiser</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script type="module">
+      import { bases } from 'https://cdn.skypack.dev/multiformats/basics';
+
+      /**
+       * @typedef {{
+       *   name: string,
+       *   prefix: string,
+       *   encode: (input: Uint8Array) => string,
+       *   decode: (input: string) => Uint8Array
+       * }} Codec
+       */
+
+      const unixtsSize = 36;
+      const msecSize = 12;
+      const msecPrecision = 3;
+
+      /**
+       * Encodes Uint8Array into bit string
+       * @param {Uint8Array} bytes
+       * @return {string}
+       */
+      function bytes2bits(bytes) {
+        return [...bytes].map((n) => dec2bits(n, 8)).join('');
+      }
+
+      /**
+       * Encodes positive base 10 numbers to bit string
+       * Will output bits in big-endian order
+       * @param {number} dec
+       * @param {number|undefined} size
+       * @return {string}
+       */
+      function dec2bits(dec, size) {
+        if (dec < 0) throw RangeError('`dec` must be positive');
+        if (size != null) {
+          if (size < 0) throw RangeError('`size` must be positive');
+          if (size === 0) return '';
+          dec %= 2 ** size;
+        } else {
+          size = 0;
+        }
+        return dec.toString(2).padStart(size, '0');
+      }
+
+      /** @type {Record<string,Codec>} */
+      const basesByPrefix = {};
+      for (const k in bases) {
+        /** @type {Codec} */
+        const codec = bases[k];
+        basesByPrefix[codec.prefix] = codec;
+      }
+
+      /**
+       * Decodes a multibase encoded ID
+       * Do not use this for generic multibase strings
+       * @param {string} idString
+       * @return {Uint8Array|undefined}
+       */
+      function fromMultibase(idString) {
+        const prefix = idString[0];
+        const codec = basesByPrefix[prefix];
+        if (codec == null) {
+          return;
+        }
+        /** @type {Uint8Array} */
+        let buffer;
+        try {
+          buffer = codec.decode(idString);
+        } catch (e) {
+          return;
+        }
+        return buffer;
+      }
+
+      /**
+       * Converts fixed point tuple to floating point number
+       * Size is number of bits allocated for the fractional
+       * Precision dictates a fixed number of decimal places for the fractional
+       * @param {[number,number]} [integer, fractionalFixed]
+       * @param {number} size
+       * @param {number|undefined} precision
+       * @return number
+       */
+      function fromFixedPoint([integer, fractionalFixed], size, precision) {
+        /** @type {number} */
+        let fractional;
+        if (precision == null) {
+          fractional = fractionalFixed / 2 ** size;
+        } else {
+          fractional = roundPrecise(fractionalFixed / 2 ** size, precision);
+        }
+        return integer + fractional;
+      }
+
+      /**
+       * Round to number of decimal points
+       * @param {number} num
+       * @param {number} digits
+       * @param {number} base
+       * @return {number}
+       */
+      function roundPrecise(num, digits = 0, base = 10) {
+        const pow = Math.pow(base, digits);
+        return Math.round((num + Number.EPSILON) * pow) / pow;
+      }
+
+      /**
+       * @param {Uint8Array} idBytes
+       * @return {number}
+       */
+      function extractTs(idBytes) {
+        // Decode the timestamp from the last id
+        // the timestamp bits is 48 bits or 6 bytes
+        // this creates a new zero-copy view
+        const idTsBytes = idBytes.subarray(0, (unixtsSize + msecSize) / 8);
+        const idTsBits = bytes2bits(idTsBytes);
+        const unixtsBits = idTsBits.substr(0, unixtsSize);
+        const msecBits = idTsBits.substr(unixtsSize, unixtsSize + msecSize);
+        const unixts = parseInt(unixtsBits, 2);
+        const msec = parseInt(msecBits, 2);
+        // Converting from second and subseconds
+        return fromFixedPoint([unixts, msec], msecSize, msecPrecision);
+      }
+
+      globalThis.idUtils = {
+        fromMultibase,
+        extractTs,
+      };
+    </script>
+    <script type="module">
+      /**
+       * Loads JSONL by asking the user to upload a file. If a localhost server
+       * is serving the file, then the server is used to automatically fetch
+       * the file instead.
+       *
+       * The server can be run via `python -m http.server 8000` in project
+       * root.
+       *
+       * @return {Promise<Array<string>>} Array of lines
+       */
+      async function loadLines() {
+        if (location.protocol === 'http:' || location.protocol === 'https:') {
+          const res = await fetch('span.jsonl');
+          if (res.ok) {
+            const text = await res.text();
+            return text.trim().split('\n');
+          }
+        }
+        const prom = new Promise((resolve) => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.jsonl';
+          input.style = 'position:fixed;top:10px;left:10px;z-index:9999';
+          input.onchange = () => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const lines = reader.result.trim().split('\n');
+              resolve(lines);
+              input.remove();
+            };
+            reader.readAsText(input.files[0]);
+          };
+          document.body.appendChild(input);
+        });
+        return await prom;
+      }
+
+      /**
+       * Extracts a Date-compatible timestamp from an idSortable.
+       * @param {string} id
+       * @returns {number}
+       */
+      function tsFromId(id) {
+        return idUtils.extractTs(idUtils.fromMultibase(id)) * 1000;
+      }
+
+      globalThis.utils = {
+        loadLines,
+        tsFromId,
+      };
+    </script>
+    <script type="module">
+      import * as d3 from 'https://cdn.skypack.dev/d3@7';
+
+      let spacing = 1;
+      let mode = 'time';
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '+' || e.key === '=') zoomIn();
+        else if (e.key === '-') zoomOut();
+      });
+
+      const svg = d3
+        .select('svg')
+        .attr('width', window.innerWidth)
+        .attr('height', window.innerHeight);
+      const g = svg.append('g');
+      svg.call(d3.zoom().on('zoom', (e) => g.attr('transform', e.transform)));
+      document.querySelector('#zoom-value').innerHTML = spacing;
+      document.querySelector('#mode').innerHTML = mode;
+
+      function zoomIn() {
+        spacing *= 0.5;
+        document.querySelector('#zoom-value').innerHTML = spacing;
+        render();
+      }
+
+      function zoomOut() {
+        spacing /= 0.5;
+        document.querySelector('#zoom-value').innerHTML = spacing;
+        render();
+      }
+
+      function toggleMode() {
+        if (mode === 'logical') mode = 'time';
+        else mode = 'logical';
+        document.querySelector('#mode').innerHTML = mode;
+        render();
+      }
+
+      let stickyHighlightedSpan = null;
+
+      // Reusable function to update visual state
+      function setHighlight(spanId, isActive) {
+        const match = (el) => el.dataset.spanId === spanId;
+        const fadeLevel = 0.2;
+
+        const highlightConfig = [
+          { selector: '.span-bar', attr: 'stroke-opacity' },
+          { selector: '.span-text', attr: 'opacity' },
+          { selector: '.span-connector', attr: 'stroke-opacity' },
+        ];
+
+        for (const { selector, attr } of highlightConfig) {
+          d3.selectAll(selector).attr(attr, function () {
+            return match(this) ? 1 : fadeLevel;
+          });
+        }
+      }
+
+      function resetHighlight() {
+        const highlightConfig = [
+          { selector: '.span-bar', attr: 'stroke-opacity' },
+          { selector: '.span-text', attr: 'opacity' },
+          { selector: '.span-connector', attr: 'stroke-opacity' },
+        ];
+
+        for (const { selector, attr } of highlightConfig) {
+          d3.selectAll(selector).attr(attr, 1);
+        }
+      }
+
+      function highlightSpan(spanId) {
+        if (stickyHighlightedSpan) return;
+        setHighlight(spanId, true);
+      }
+
+      function clearHighlight() {
+        if (stickyHighlightedSpan) return;
+        resetHighlight();
+      }
+
+      function toggleStickyHighlight(spanId) {
+        if (stickyHighlightedSpan === spanId) {
+          stickyHighlightedSpan = null;
+          resetHighlight();
+        } else {
+          stickyHighlightedSpan = spanId;
+          setHighlight(spanId, true);
+        }
+      }
+
+      async function render() {
+        // Get events from input lines
+        const rawLines = await utils.loadLines();
+        const events = rawLines.map(JSON.parse);
+
+        // Clear previous state
+        g.selectAll('*').remove();
+        document.querySelector('#navbar').style.display = 'flex';
+
+        // 1) Pair start/stop events and assign step indices
+        const spanMap = new Map(); // [spanId]: { startEvt, stopEvt }
+        const eventSteps = [];
+
+        let stepCounter = 0;
+        for (const e of events) {
+          const sid = e.type === 'start' ? e.id : e.startId;
+          if (!spanMap.has(sid)) spanMap.set(sid, {});
+          spanMap.get(sid)[e.type] = e;
+          eventSteps.push({
+            spanId: sid,
+            type: e.type,
+            step: stepCounter++,
+            event: e,
+          });
+        }
+
+        const eventStepMap = new Map(); // [spanId]: { startStep, stopStep }
+        for (const { spanId, type, step } of eventSteps) {
+          if (!eventStepMap.has(spanId)) eventStepMap.set(spanId, {});
+          eventStepMap.get(spanId)[
+            type === 'start' ? 'startStep' : 'stopStep'
+          ] = step;
+        }
+
+        // 2) Build render-ready span objects
+        const renderSpans = [];
+        let minT = Infinity;
+        let maxT = -Infinity;
+
+        for (const [sid, { start, stop }] of spanMap.entries()) {
+          if (!start) continue;
+
+          const startTs = utils.tsFromId(start.id);
+          const stopTs = stop ? utils.tsFromId(stop.id) : undefined;
+          const startStep = eventStepMap.get(sid)?.startStep;
+          const stopStep = eventStepMap.get(sid)?.stopStep ?? eventSteps.length;
+
+          if (mode === 'time') {
+            if (startTs < minT) minT = startTs;
+            if (stopTs && stopTs > maxT) maxT = stopTs;
+          }
+
+          renderSpans.push({
+            spanId: sid,
+            name: start.name || sid,
+            startTs: mode === 'time' ? startTs : undefined,
+            stopTs: mode === 'time' ? stopTs ?? maxT : undefined,
+            startStep: mode === 'logical' ? startStep : undefined,
+            stopStep: mode === 'logical' ? stopStep : undefined,
+            hasEnd: !!stop,
+            parent: start.parentId || null,
+          });
+        }
+
+        // 3) Build parent-child tree relationships
+        const nodeMap = new Map(renderSpans.map((s) => [s.spanId, s]));
+        const roots = [];
+
+        for (const s of renderSpans) {
+          if (!s.parent || !nodeMap.has(s.parent)) {
+            roots.push(s);
+          } else {
+            const p = nodeMap.get(s.parent);
+            p.children = p.children || [];
+            p.children.push(s);
+          }
+        }
+
+        const sortTree = (n) => {
+          if (n.children) {
+            n.children.sort((a, b) => {
+              return mode === 'time'
+                ? (a.startTs ?? 0) - (b.startTs ?? 0)
+                : (a.startStep ?? 0) - (b.startStep ?? 0);
+            });
+            n.children.forEach(sortTree);
+          }
+        };
+        roots.forEach(sortTree);
+
+        // 4) Assign horizontal (x) and indentation (y) positions with rail allocator
+        const pos = new Map();
+        const spacingX = 30;
+        const spacingY = 50;
+
+        let nextRail = 0;
+        const activeRails = []; // Array of { rail: number, occupiedUntil: number }
+
+        const assignedRail = new Map();
+
+        const getStart = (s) => (mode === 'time' ? s.startTs : s.startStep);
+        const getStop = (s) => (mode === 'time' ? s.stopTs : s.stopStep);
+
+        function findFreeRail(start) {
+          for (let i = 0; i < activeRails.length; i++) {
+            if (activeRails[i].occupiedUntil <= start) {
+              return i;
+            }
+          }
+          return -1;
+        }
+
+        function reserveRail(span) {
+          const start = getStart(span);
+          const stop = getStop(span);
+          const parentRail = span.parent
+            ? assignedRail.get(span.parent) ?? -1
+            : -1;
+          const searchStart = parentRail + 1;
+
+          // Search from just after parent
+          for (let i = searchStart; i < activeRails.length; i++) {
+            if (activeRails[i] <= start) {
+              activeRails[i] = stop;
+              assignedRail.set(span.spanId, i);
+              return i;
+            }
+          }
+
+          // No available → allocate new rail
+          const newRail = activeRails.length;
+          activeRails.push(stop);
+          assignedRail.set(span.spanId, newRail);
+          return newRail;
+        }
+
+        function layout(span, depth = 0) {
+          const rail = reserveRail(span);
+          pos.set(span.spanId, {
+            x: rail * spacingX,
+            y: depth * spacingY,
+          });
+          if (span.children) span.children.forEach((c) => layout(c, depth + 1));
+        }
+
+        roots.forEach((r) => layout(r));
+
+        // 5) Configure Y-axis scaling (time or logical steps)
+        const yDomain = mode === 'time' ? [minT, maxT] : [0, eventSteps.length];
+        const y = d3
+          .scaleLinear()
+          .domain(yDomain)
+          .range([50, (yDomain[1] - yDomain[0]) / spacing]);
+
+        // 6) Render lines and vertical bars
+        for (const span of renderSpans) {
+          const { x } = pos.get(span.spanId);
+          const startY = y(mode === 'time' ? span.startTs : span.startStep);
+          const stopY = y(mode === 'time' ? span.stopTs : span.stopStep);
+
+          if (span.parent && pos.has(span.parent)) {
+            const { x: px } = pos.get(span.parent);
+            const rise = 0;
+            const run = 20;
+
+            g.append('line')
+              .attr('class', 'span-connector')
+              .attr('data-span-id', span.spanId)
+              .attr('pointer-events', 'none')
+              .attr('x1', px)
+              .attr('y1', startY - rise)
+              .attr('x2', x)
+              .attr('y2', startY)
+              .attr('stroke', '#aaa')
+              .attr('stroke-width', 1.5);
+          }
+
+          g.append('line')
+            .attr('class', 'span-bar')
+            .attr('data-span-id', span.spanId)
+            .attr('x1', x)
+            .attr('y1', startY)
+            .attr('x2', x)
+            .attr('y2', stopY)
+            .attr('stroke', span.hasEnd ? '#258' : '#911')
+            .attr('stroke-width', 4)
+            .on('mouseover', () => highlightSpan(span.spanId))
+            .on('mouseout', () => clearHighlight())
+            .on('click', () => toggleStickyHighlight(span.spanId));
+
+          g.append('text')
+            .attr('class', 'span-text')
+            .attr('pointer-events', 'none')
+            .attr('data-span-id', span.spanId)
+            .attr('x', x + 8)
+            .attr('y', startY + 10)
+            .text(span.name)
+            .attr('font-size', '12px')
+            .attr('fill', '#333');
+        }
+
+        // 7) Draw Y-axis
+        const axis = d3
+          .axisRight(y)
+          .ticks(10 / spacing)
+          .tickFormat((d) =>
+            mode === 'time'
+              ? new Date(d).toISOString().slice(11, 23)
+              : String(d),
+          );
+
+        g.append('g')
+          .attr('transform', `translate(-128,0)`)
+          .call(axis)
+          .selectAll('path, line')
+          .attr('stroke', '#666');
+      }
+
+      render();
+
+      globalThis.main = {
+        zoomIn,
+        zoomOut,
+        toggleMode,
+      };
+    </script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: monospace;
+        overflow: hidden;
+      }
+      svg {
+        display: block;
+        background: #fff;
+      }
+      button {
+        transition: background-color 75ms ease-in-out;
+        padding: 4px;
+        border-radius: 4px;
+        border: unset;
+        box-shadow: unset;
+        background-color: dimgray;
+        color: white;
+      }
+      button:hover {
+        background-color: gray;
+      }
+
+      .top-bar {
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100vw;
+        padding: 0;
+        margin: 0;
+        height: 32px;
+        background-color: lightgray;
+        display: flex;
+      }
+      .top-zoom,
+      .top-mode {
+        margin-left: 8px;
+        align-self: center;
+      }
+      .top-zoom button {
+        width: 24px;
+        height: 24px;
+      }
+      #mode {
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar" id="navbar" style="display: none">
+      <div class="top-zoom">
+        <button onClick="main.zoomIn()">
+          <i class="fa-solid fa-magnifying-glass-plus"></i>
+        </button>
+        <button onClick="main.zoomOut()">
+          <i class="fa-solid fa-magnifying-glass-minus"></i>
+        </button>
+        <span id="zoom-value"></span>
+      </div>
+      <div class="top-mode">
+        <button id="mode" onClick="main.toggleMode()"></button>
+      </div>
+    </div>
+    <svg></svg>
+  </body>
+</html>
